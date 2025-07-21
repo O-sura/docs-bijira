@@ -23,8 +23,8 @@ The configurable fields of the above policy have been described below.
 | Field                    | Description                                                        | Example Value                |
 | ------------------------ | ------------------------------------------------------------------ | --------------------------- |
 | `Embedding Provider`     | AI provider used for generating embeddings (Azure OpenAI or Mistral).| `Azure OpenAI`              |
-| `Auth Header Name`       | Header name for authentication (Authorization or API key).         | `api-key`             |
-| `API Key`                | API key for authenticating with the embedding provider.            | `49fdadf43f184A8419f8B6c411F575b17`       |
+| `Auth Header Name`       | Header name for authentication <br>(<i>Use the header name ```Authorization``` for Mistral and ```api-key``` for Azure OpenAI.</i>).         | `api-key`             |
+| `API Key`                | API key for authenticating with the embedding provider.            | `49fdadxxxxxxxxxxxxxxxxxxxxxxxxxx`       |
 | `Embedding Model Name`   | Specific embedding model to use from the provider.                 | `text-embedding-ada-002`    |
 | `Embedding Upstream URL` | Endpoint URL of the embedding service.                             | `https://example.openai.azure.com/openai/deployments/OpenAIEmbeddings/embeddings?api-version=2025-07-21` |
 | `Vector Store`           | Type of vector database to store embeddings (Currently we only support Redis).     | `Redis`                     |
