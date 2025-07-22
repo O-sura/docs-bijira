@@ -26,13 +26,13 @@ The configurable fields of the above policy have been described below.
 | `Auth Header Name`       | Header name for authentication <br>(<i>Use the header name ```Authorization``` for Mistral and ```api-key``` for Azure OpenAI.</i>).         | `api-key`             |
 | `API Key`                | API key for authenticating with the embedding provider.            | `49fdadxxxxxxxxxxxxxxxxxxxxxxxxxx`       |
 | `Embedding Model Name`   | Specific embedding model to use from the provider.                 | `text-embedding-ada-002`    |
-| `Embedding Upstream URL` | Endpoint URL of the embedding service.                             | `https://example.openai.azure.com/openai/deployments/OpenAIEmbeddings/embeddings?api-version=2025-07-21` |
-| `Vector Store`           | Type of vector database to store embeddings (Currently we only support Redis).     | `Redis`                     |
+| `Embedding Upstream URL` | Endpoint URL of the embedding service.                             | `https://example.openai.azure.com/openai/deployments/xxxxx/embeddings?api-version=2025-07-21` |
+| `Vector Store`           | Type of vector database to store embeddings <br><i>(Currently only Redis is supported)</i>.     | `Redis`                     |
 | `Host`                   | Host address of the vector database.                               | `redis-xxxxx.us-east.ec2.redis-cloud.com`                 |
 | `Port`                   | Network port number of the vector database.                        | `6379`                      |
 | `Dimensions`             | Number of dimensions for generated vectors.                        | `1536`                      |
-| `Threshold`              | Similarity threshold for semantic result matching ranging from 0 to 1<br>(<i>**Note**: A value closer to zero indicates higher semantic similarity, while higher values represent weaker matches.</i>). | `0.1`                       |
-| `Username`               | Username for database authentication.                              | `admin`                     |
+| `Threshold`              | Dissimilarity threshold which is a decimal value for semantic matching that determines the required similarity for cache matches. <br>[<i>**Note**: Lower values (closer to 0) enforce stricter semantic similarity, while higher values allow weaker matches. Typical range: 0.0 (exact) to higher values (e.g., 0.5, 1.2, etc.</i>)]. | `0.1`                       |
+| `Username`               | Username for database authentication.                              | `newuser`                     |
 | `Password`               | Password for the specified database user.                          | `securepassword123`         |
 | `Database`               | Index of the vector database to connect to.                         | `0`             |
 
