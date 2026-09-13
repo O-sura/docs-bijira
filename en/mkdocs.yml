@@ -470,6 +470,7 @@ nav:
         - Analytics:
           - Analytics Header Filter: api-gateway/1.2.0/analytics/analytics-header-filter.md
           - Moesif Analytics: api-gateway/1.2.0/analytics/moesif-analytics.md
+          - OpenTelemetry Analytics: api-gateway/1.2.0/analytics/opentelemetry-analytics.md
         - Management API:
           - Overview: api-gateway/1.2.0/gateway-controller-management-api/overview.md
           - Authentication: api-gateway/1.2.0/gateway-controller-management-api/authentication.md
@@ -758,6 +759,7 @@ nav:
         - Analytics:
             - ai-gateway/1.2.0/analytics/index.md
             - Moesif Analytics: ai-gateway/1.2.0/analytics/moesif-analytics.md
+            - OpenTelemetry Analytics: ai-gateway/1.2.0/analytics/opentelemetry-analytics.md
             - Analytics Header Filter: ai-gateway/1.2.0/analytics/analytics-header-filter.md
         - AI Workspace:
             - Extend Your Gateway with AI Workspace: ai-gateway/1.2.0/ai-workspace/extend-your-gateway-with-ai-workspace.md
@@ -1422,6 +1424,7 @@ plugins:
         ai-gateway/ai-gateway-rest-api/authentication.md: ai-gateway/1.1.0/ai-gateway-rest-api/authentication.md
         ai-gateway/analytics/analytics-header-filter.md: ai-gateway/1.1.0/analytics/analytics-header-filter.md
         ai-gateway/analytics/moesif-analytics.md: ai-gateway/1.1.0/analytics/moesif-analytics.md
+        ai-gateway/analytics/opentelemetry-analytics.md: ai-gateway/1.2.0/analytics/opentelemetry-analytics.md
         ai-gateway/deployment-modes/immutable-gateway.md: ai-gateway/1.1.0/deployment/deployment-modes/immutable-gateway.md
         ai-gateway/deployment-modes/kubernetes/gateway-operator.md: ai-gateway/1.1.0/deployment/deployment-modes/kubernetes/gateway-operator.md
         ai-gateway/deployment-modes/kubernetes/kubernetes-standalone.md: ai-gateway/1.1.0/deployment/deployment-modes/kubernetes/kubernetes-standalone.md
@@ -1455,6 +1458,7 @@ plugins:
         ai-gateway/streaming-responses.md: ai-gateway/1.1.0/streaming-responses.md
         api-gateway/analytics/analytics-header-filter.md: api-gateway/1.1.0/analytics/analytics-header-filter.md
         api-gateway/analytics/moesif-analytics.md: api-gateway/1.1.0/analytics/moesif-analytics.md
+        api-gateway/analytics/opentelemetry-analytics.md: api-gateway/1.2.0/analytics/opentelemetry-analytics.md
         api-gateway/deployment/deploying-apis/bottom-up-api-deployment.md: api-gateway/1.1.0/deployment/deploying-apis/bottom-up-api-deployment.md
         api-gateway/deployment/deployment-modes/immutable-gateway.md: api-gateway/1.1.0/deployment/deployment-modes/immutable-gateway.md
         api-gateway/deployment/deployment-modes/kubernetes/gateway-operator-management-crds.md: api-gateway/1.1.0/deployment/deployment-modes/kubernetes/gateway-operator-management-crds.md
