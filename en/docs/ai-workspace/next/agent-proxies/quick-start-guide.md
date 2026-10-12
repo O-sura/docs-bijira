@@ -1,5 +1,5 @@
 ---
-title: "Agent proxy quick start guide"
+title: "A2A agent proxy quick start guide"
 description: "Create an A2A agent proxy in AI Workspace, deploy it to an AI Gateway, invoke the agent over both A2A bindings, and secure it with an API key."
 canonical_url: https://wso2.com/api-platform/docs/ai-workspace/next/agent-proxies/quick-start-guide/
 md_url: https://wso2.com/api-platform/docs/ai-workspace/next/agent-proxies/quick-start-guide.md
@@ -41,6 +41,8 @@ First, create an agent proxy for a sample agent in AI Workspace.
 
     !!! note "Pointing at your own agent instead"
         Enter its base URL in the **Agent URL** field and click **Fetch Agent Info** instead of clicking **Try with Sample Agent**.
+
+        AI Workspace fetches the Agent Card from that URL, so the card appears only when AI Workspace can reach the agent. If it can't, you can still continue and create the proxy. Make sure the gateway can reach the agent's URL, because the gateway is what calls the agent.
 
 5. Click **Next**, keep the details AI Workspace filled in from the Agent Card, and click **Create**.
 
