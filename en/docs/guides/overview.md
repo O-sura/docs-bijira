@@ -1,13 +1,13 @@
 ---
 title: "Guides overview"
-description: "Step-by-step guides for WSO2 API Platform, grouped by goal: govern LLM traffic, expose and govern MCP servers, manage and govern APIs, monetize, and more."
+description: "Step-by-step guides for WSO2 API Platform, grouped by goal and by vendor, such as AWS, Azure, Anthropic, OpenAI, Google, and GitHub."
 canonical_url: https://wso2.com/api-platform/docs/guides/overview/
 md_url: https://wso2.com/api-platform/docs/guides/overview.md
 tags:
   - guides
   - overview
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-09-23
+last_updated: 2026-10-19
 content_type: "overview"
 ---
 
@@ -25,6 +25,15 @@ Each guide gives you:
 Use guides to see how components such as AI Gateway, AI Workspace, Developer Portal, and MCP Hub work together. For details on a single feature, see the product documentation for [Cloud](../cloud/introduction/what-is-bijira.md), [API Manager](../api-manager/overview.md), [AI Gateway](../ai-gateway/1.1.0/overview.md), or [API Portal](../api-portal/1.0.0/overview.md).
 
 ## Explore what you can build
+
+Browse by what you want to achieve, or by the vendor you already work with.
+
+<div class="guides-switch" role="tablist" aria-label="Browse guides" hidden>
+<button type="button" role="tab" id="guides-tab-use-case" aria-controls="guides-view-use-case" data-view-heading="browse-by-use-case" aria-selected="true">By use case</button>
+<button type="button" role="tab" id="guides-tab-vendor" aria-controls="guides-view-vendor" data-view-heading="browse-by-vendor" aria-selected="false" tabindex="-1">By vendor</button>
+</div>
+
+## Browse by use case
 
 The guides below are grouped by use case. Whether you want to secure and manage your APIs, control LLM usage and cost, monitor AI traffic, turn your APIs into MCP tools, give AI agents access to your APIs as MCP tools, or monetize your usage, browse the guides for your use case and try them out on your own from start to finish.
 
@@ -204,9 +213,139 @@ Put an API proxy in front of WebSocket backends and push live updates to every c
 
 </div>
 
+## Browse by vendor
+
+The resources below are grouped by vendor. Whether you use Amazon Bedrock, Azure OpenAI, Claude, OpenAI, Gemini, Mistral, GitHub Copilot, or Stripe, find the relevant guides, tutorials, and setup references for your deployment.
+
+<p class="guides-group-label">AI and cloud providers</p>
+
+<div class="cards-container guides-cards" markdown="1">
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 01-.5-8 6 6 0 0111.6 1.5A3.5 3.5 0 0117.5 18z"/></svg>AWS
+
+---
+
+Govern AI traffic to Amazon Bedrock with guardrails and workload identity, discover and govern APIs on Amazon API Gateway, and integrate with AWS observability services.
+
+[Explore AWS resources &rarr;](vendors/aws.md)
+
+</div>
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19L10.5 5h3L20 19M7.5 13h9"/></svg>Azure
+
+---
+
+Govern Azure OpenAI and Azure AI Foundry traffic, moderate content with Azure AI Content Safety, and secure APIs with Microsoft Entra ID.
+
+[Explore Azure resources &rarr;](vendors/azure.md)
+
+</div>
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z"/></svg>Anthropic
+
+---
+
+Route Claude Code through AI Gateway, connect Claude Code and Claude Desktop to governed APIs and MCP servers, and govern traffic to Claude models.
+
+[Explore Anthropic resources &rarr;](vendors/anthropic.md)
+
+</div>
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"/></svg>OpenAI
+
+---
+
+Route OpenAI Codex CLI through AI Gateway, govern traffic to OpenAI models, and use OpenAI embeddings for semantic caching and guardrails.
+
+[Explore OpenAI resources &rarr;](vendors/openai.md)
+
+</div>
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 6.8H21l-5.5 4 2.1 6.7L12 16.4l-5.6 4.1 2.1-6.7-5.5-4h6.8z"/></svg>Google
+
+---
+
+Route Google Gemini CLI through AI Gateway, govern Gemini model traffic, and send gateway telemetry to Google Cloud.
+
+[Explore Google resources &rarr;](vendors/google.md)
+
+</div>
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a3 3 0 10-3-3M3 12h15a3 3 0 11-3 3M3 16h7"/></svg>Mistral
+
+---
+
+Govern traffic to Mistral AI models, and use Mistral embeddings for semantic caching and semantic guardrails.
+
+[Explore Mistral resources &rarr;](vendors/mistral.md)
+
+</div>
+
+</div>
+
+<p class="guides-group-label">Developer tools</p>
+
+<div class="cards-container guides-cards" markdown="1">
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9a9 9 0 01-9 9"/></svg>GitHub
+
+---
+
+Route GitHub Copilot through AI Gateway, create API proxies from GitHub repositories, and design APIs with Copilot in VS Code.
+
+[Explore GitHub resources &rarr;](vendors/github.md)
+
+</div>
+
+</div>
+
+<p class="guides-group-label">Billing and payments</p>
+
+<div class="cards-container guides-cards" markdown="1">
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18M7 15h3"/></svg>Stripe
+
+---
+
+Sell paid subscription plans for your APIs, and bill AI agents for the MCP tools they call.
+
+[Explore Stripe resources &rarr;](vendors/stripe.md)
+
+</div>
+
+</div>
+
 ## More resources
 
 <div class="cards-container guides-cards" markdown="1">
+
+<div class="card" markdown="1">
+
+### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5zM4 6.5v13"/></svg>Learn the concepts
+
+---
+
+Read tutorials, engineering explanations, and learning paths that complement the task-focused product guides.
+
+[Visit the API Content Hub &rarr;](https://wso2.com/api-platform/learn/)
+
+</div>
 
 <div class="card" markdown="1">
 

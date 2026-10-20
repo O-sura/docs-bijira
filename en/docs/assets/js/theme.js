@@ -196,6 +196,241 @@ onEachPage(function() {
 });
 
 /*
+ * Guides overview: "By use case" / "By vendor" switch
+ * -------------------------------------------------------------------------
+ * The Markdown stays flat: each view is an h2 and everything up to the next
+ * h2. Each tab names its view's heading in data-view-heading, and this script
+ * wraps that run of elements in a tabpanel. (md_in_html can't nest the card
+ * grids inside a panel <div>, so the grouping happens here.)
+ *
+ * Both views are in the page, so search, llms.txt and readers without
+ * JavaScript get everything; the switch stays hidden until this runs. A link
+ * to a heading inside either view (#browse-by-vendor, #aws) opens that view,
+ * and switching views puts the view's heading in the URL so it can be shared.
+ * The inactive view uses hidden="until-found", so find in page (Chrome) can
+ * reach it and switch to it.
+ */
+var guidesSwitchHashHandler = null;
+
+function wrapGuidesView(tab) {
+  var existing = document.getElementById(tab.getAttribute('aria-controls'));
+  if (existing) return existing;
+  var heading = document.getElementById(tab.dataset.viewHeading || '');
+  if (!heading || heading.tagName !== 'H2') return null;
+  var panel = document.createElement('div');
+  panel.className = 'guides-view';
+  panel.id = tab.getAttribute('aria-controls');
+  panel.setAttribute('role', 'tabpanel');
+  panel.setAttribute('aria-labelledby', tab.id);
+  heading.parentNode.insertBefore(panel, heading);
+  var node = heading;
+  while (node && !(node !== heading && node.tagName === 'H2')) {
+    var next = node.nextElementSibling;
+    panel.appendChild(node);
+    node = next;
+  }
+  return panel;
+}
+
+onEachPage(function () {
+  var tablist = document.querySelector('.guides-switch');
+  if (!tablist) return;
+  var tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+  var panels = tabs.map(wrapGuidesView);
+  if (tabs.length === 0 || panels.some(function (panel) { return !panel; })) return;
+
+  function select(index, options) {
+    options = options || {};
+    tabs.forEach(function (tab, i) {
+      var selected = i === index;
+      tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+      tab.tabIndex = selected ? 0 : -1;
+      if (selected) {
+        panels[i].removeAttribute('hidden');
+      } else {
+        panels[i].setAttribute('hidden', 'until-found');
+      }
+    });
+    syncTableOfContents(index);
+    if (options.focus) tabs[index].focus();
+    if (options.updateUrl) {
+      var heading = panels[index].querySelector('h2[id]');
+      if (heading) history.replaceState(history.state, '', '#' + heading.id);
+    }
+  }
+
+  function hashTarget() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    return id ? document.getElementById(id) : null;
+  }
+
+  function panelIndexOf(element) {
+    return element ? panels.findIndex(function (panel) { return panel.contains(element); }) : -1;
+  }
+
+  function syncTableOfContents(index) {
+    var toc = document.querySelector('.md-sidebar--secondary');
+    if (!toc) return;
+    toc.querySelectorAll('a[href*="#"]').forEach(function (link) {
+      var id = decodeURIComponent(new URL(link.href, location.href).hash.slice(1));
+      var target = id ? document.getElementById(id) : null;
+      var targetPanel = panelIndexOf(target);
+      if (targetPanel < 0) return;
+      var item = link.closest('.md-nav__item');
+      if (item) item.hidden = targetPanel !== index;
+    });
+  }
+
+  tabs.forEach(function (tab, i) {
+    tab.addEventListener('click', function () {
+      select(i, { updateUrl: true });
+    });
+    tab.addEventListener('keydown', function (event) {
+      var next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
+      if (next === undefined) return;
+      event.preventDefault();
+      select((next + tabs.length) % tabs.length, { focus: true, updateUrl: true });
+    });
+  });
+
+  panels.forEach(function (panel, i) {
+    panel.addEventListener('beforematch', function () { select(i); });
+  });
+
+  // A link from another page, or from this page's table of contents, can point
+  // into the hidden view: open it, then scroll to the target the browser
+  // couldn't reach while it was hidden.
+  function openHashTarget() {
+    var target = hashTarget();
+    var index = panelIndexOf(target);
+    if (index < 0) return;
+    select(index);
+    target.scrollIntoView();
+  }
+
+  // Instant navigation keeps one window, so replace the previous page's
+  // listener instead of adding one per visit.
+  if (guidesSwitchHashHandler) window.removeEventListener('hashchange', guidesSwitchHashHandler);
+  guidesSwitchHashHandler = openHashTarget;
+  window.addEventListener('hashchange', guidesSwitchHashHandler);
+
+  var initial = panelIndexOf(hashTarget());
+  select(initial < 0 ? 0 : initial);
+  tablist.removeAttribute('hidden');
+  if (initial >= 0) hashTarget().scrollIntoView();
+});
+
+/*
+ * Vendor guide pages: deployment type switch
+ * -------------------------------------------------------------------------
+ * Deployment content is authored as Hybrid, Cloud, and Self-hosted h2
+ * sections. Build a compact switch from the sections that actually exist on
+ * the page. Hybrid is the initial selection when available; vendors without
+ * Hybrid start on their first applicable deployment type.
+ */
+var vendorDeploymentHashHandler = null;
+
+onEachPage(function () {
+  var article = document.querySelector('.md-content__inner');
+  if (!article || !location.pathname.includes('/guides/vendors/')) return;
+
+  var deploymentIds = ['hybrid', 'cloud', 'self-hosted'];
+  var labels = { hybrid: 'Hybrid', cloud: 'Cloud', 'self-hosted': 'Self-hosted' };
+  var sections = deploymentIds.map(function (id) {
+    var heading = document.getElementById(id);
+    if (!heading || heading.tagName !== 'H2') return null;
+    var nodes = [];
+    var node = heading;
+    while (node && !(node !== heading && node.tagName === 'H2')) {
+      nodes.push(node);
+      node = node.nextElementSibling;
+    }
+    return { id: id, heading: heading, nodes: nodes };
+  }).filter(Boolean);
+
+  if (sections.length < 2) return;
+
+  sections.forEach(function (section) {
+    section.heading.classList.add('vendor-deployment-heading');
+  });
+
+  var switcher = document.createElement('div');
+  switcher.className = 'vendor-deployment-switch';
+  switcher.setAttribute('role', 'group');
+  switcher.setAttribute('aria-label', 'Deployment type');
+
+  var switchLabel = document.createElement('span');
+  switchLabel.className = 'vendor-deployment-switch__label';
+  switchLabel.textContent = 'View resources for';
+  switcher.appendChild(switchLabel);
+
+  var buttons = sections.map(function (section) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = labels[section.id];
+    button.setAttribute('aria-controls', section.id);
+    button.setAttribute('aria-pressed', 'false');
+    switcher.appendChild(button);
+    return button;
+  });
+
+  sections[0].heading.parentNode.insertBefore(switcher, sections[0].heading);
+
+  function sectionIndexFor(element) {
+    return sections.findIndex(function (section) {
+      return section.nodes.some(function (node) {
+        return node === element || node.contains(element);
+      });
+    });
+  }
+
+  function select(index, updateUrl) {
+    sections.forEach(function (section, i) {
+      var selected = i === index;
+      section.nodes.forEach(function (node) {
+        node.hidden = !selected;
+        node.classList.toggle('vendor-deployment-hidden', !selected);
+      });
+      buttons[i].setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
+    var toc = document.querySelector('.md-sidebar--secondary');
+    if (toc) {
+      toc.querySelectorAll('a[href*="#"]').forEach(function (link) {
+        var id = decodeURIComponent(new URL(link.href, location.href).hash.slice(1));
+        var targetIndex = sectionIndexFor(id ? document.getElementById(id) : null);
+        if (targetIndex < 0) return;
+        var item = link.closest('.md-nav__item');
+        if (item) item.hidden = targetIndex !== index;
+      });
+    }
+    if (updateUrl) history.replaceState(history.state, '', '#' + sections[index].id);
+  }
+
+  buttons.forEach(function (button, index) {
+    button.addEventListener('click', function () { select(index, true); });
+  });
+
+  function openHashTarget() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var target = id ? document.getElementById(id) : null;
+    var index = sectionIndexFor(target);
+    if (index >= 0) select(index, false);
+  }
+
+  if (vendorDeploymentHashHandler) {
+    window.removeEventListener('hashchange', vendorDeploymentHashHandler);
+  }
+  vendorDeploymentHashHandler = openHashTarget;
+  window.addEventListener('hashchange', vendorDeploymentHashHandler);
+
+  var initial = sectionIndexFor(document.getElementById(decodeURIComponent(location.hash.slice(1))));
+  if (initial < 0) {
+    initial = sections.findIndex(function (section) { return section.id === 'hybrid'; });
+  }
+  select(initial < 0 ? 0 : initial, false);
+});
+
+/*
  * Handle opening external links in a new tab
  * and initialize JSON tree formatter
  */
