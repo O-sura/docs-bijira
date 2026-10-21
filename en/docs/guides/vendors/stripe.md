@@ -1,6 +1,6 @@
 ---
 title: "Stripe guides"
-description: "Use WSO2 API Platform with Stripe to sell paid subscription plans for your APIs and to bill AI agents for the MCP tools they call."
+description: "Use WSO2 API Platform with Stripe to sell paid subscription plans for your APIs and bill consumers for their usage."
 canonical_url: https://wso2.com/api-platform/docs/guides/vendors/stripe/
 md_url: https://wso2.com/api-platform/docs/guides/vendors/stripe.md
 tags:
@@ -13,13 +13,13 @@ last_updated: 2026-10-20
 content_type: "overview"
 ---
 
-# Bill for APIs and MCP tools with Stripe
+# Bill for APIs with Stripe
 
-WSO2 API Platform works alongside Stripe Billing. Sell paid API subscription plans, report usage for metered billing, and bill AI agents for the MCP tools they call. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside Stripe Billing. Sell paid API subscription plans, and report usage to Stripe for metered billing.
 
 ## End-to-end guides
 
-Follow a scenario from start to finish with Stripe.
+A step-by-step guide for billing with Stripe.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -28,12 +28,6 @@ Follow a scenario from start to finish with Stripe.
     Publish an API with a pay-as-you-go plan and let the platform sync per-request usage to Stripe.
 
     Guide · Stripe billing
-
-- [Monetize MCP tools with the self-hosted AI Gateway](../monetization/mcp-tool-monetization.md)
-
-    Meter MCP tool calls through Moesif and use Stripe as the billing provider.
-
-    Guide · MCP tool monetization
 
 </div>
 
@@ -87,12 +81,11 @@ See what each subscriber used and what they were billed.
 
 ## Architecture and responsibility model
 
-The journeys split work between WSO2, Moesif, and Stripe differently:
+WSO2 API Platform and Stripe split the work like this:
 
-| Journey | WSO2 role | Stripe role | Runtime traffic |
+| Scenario | WSO2 role | Stripe role | Runtime traffic |
 | --- | --- | --- | --- |
-| API monetization | Manages plans and subscriptions, and syncs per-request usage | Holds products and prices, invoices consumers, and collects payment | API calls go through the WSO2 gateway; usage records go to Stripe |
-| MCP tool monetization | The gateway publishes each tool call to Moesif, which meters it | Invoices and collects payment for the usage Moesif reports | Tool calls go through the self-hosted AI Gateway; usage goes to Moesif, then Stripe |
+| API monetization | Manages plans and subscriptions, and syncs per-request usage | Holds products and prices, invoices consumers, and collects payment | API calls go through the WSO2 gateway, and usage records go to Stripe |
 
 ## Learn more
 

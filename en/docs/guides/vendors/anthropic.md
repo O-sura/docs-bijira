@@ -17,11 +17,11 @@ content_type: "overview"
 
 # Govern Claude models, Claude Code, and Claude Desktop
 
-WSO2 API Platform works alongside the Anthropic products you already use. Govern traffic to Claude models, route Claude Code through AI Gateway, and give Claude Desktop and Claude Code controlled access to APIs and MCP servers. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside the Anthropic products you already use. Govern traffic to Claude models, route Claude Code through AI Gateway, and give Claude Desktop and Claude Code controlled access to APIs and MCP servers.
 
 ## End-to-end guides and tutorials
 
-Follow a scenario from start to finish with Claude Code or Claude Desktop. Guides are part of this documentation. Tutorials are published on the WSO2 API Platform Learn Hub and written for the product version they name.
+Step-by-step guides for Claude Code and Claude Desktop. Guides are part of this documentation. Tutorials are published on the WSO2 API Platform Learn Hub and written for the product version they name.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -78,7 +78,7 @@ Routing, token limits, cost control, and the gateway's other policies work the s
 
 ## Claude Desktop and MCP tools
 
-Expose your APIs and MCP servers to Claude Desktop and Claude Code through governed MCP proxies. Tool calls go through the gateway; requests to Claude models go directly to Anthropic unless you also route them through AI Gateway.
+Expose your APIs and MCP servers to Claude Desktop and Claude Code through governed MCP proxies. Tool calls go through the gateway. Requests to Claude models go directly to Anthropic unless you also route them through AI Gateway.
 
 <div class="vendor-cap" markdown="1">
 
@@ -94,13 +94,13 @@ Put an MCP proxy in front of an MCP server, and control which tools Claude can c
 
 ## Architecture and responsibility model
 
-The three journeys split work between WSO2 and Anthropic differently:
+WSO2 API Platform and Anthropic split the work like this:
 
-| Journey | WSO2 role | Anthropic role | Runtime traffic |
+| Scenario | WSO2 role | Anthropic role | Runtime traffic |
 | --- | --- | --- | --- |
 | Claude Code through AI Gateway | Authenticates developers and applies guardrails, rate limits, and analytics | Hosts the Claude models and bills the API key or subscription | Goes through WSO2 AI Gateway to Anthropic |
 | Applications calling Claude models | Proxies and governs LLM requests | Hosts the Claude models | Goes through WSO2 AI Gateway to Anthropic |
-| Claude Desktop and Claude Code with governed tools | Proxies and governs your APIs and MCP servers | Provides the Claude client and model | Tool calls go through WSO2; model requests go directly to Anthropic |
+| Claude Desktop and Claude Code with governed tools | Proxies and governs your APIs and MCP servers | Provides the Claude client and model | Tool calls go through WSO2, and model requests go directly to Anthropic |
 
 ## Learn more
 

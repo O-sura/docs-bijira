@@ -7,7 +7,7 @@ tags:
   - guides
   - overview
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-19
+last_updated: 2026-10-20
 content_type: "overview"
 ---
 
@@ -223,7 +223,7 @@ The resources below are grouped by vendor. Whether you use Amazon Bedrock, Azure
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 01-.5-8 6 6 0 0111.6 1.5A3.5 3.5 0 0117.5 18z"/></svg>AWS
+### AWS
 
 ---
 
@@ -235,7 +235,7 @@ Govern AI traffic to Amazon Bedrock with guardrails and workload identity, disco
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19L10.5 5h3L20 19M7.5 13h9"/></svg>Azure
+### Azure
 
 ---
 
@@ -247,7 +247,7 @@ Govern Azure OpenAI and Azure AI Foundry traffic, moderate content with Azure AI
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-11.5 7.2L4 20l1-4.5A8 8 0 1121 12z"/></svg>Anthropic
+### Anthropic
 
 ---
 
@@ -259,7 +259,7 @@ Route Claude Code through AI Gateway, connect Claude Code and Claude Desktop to 
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"/></svg>OpenAI
+### OpenAI
 
 ---
 
@@ -271,7 +271,7 @@ Route OpenAI Codex CLI through AI Gateway, govern traffic to OpenAI models, and 
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 6.8H21l-5.5 4 2.1 6.7L12 16.4l-5.6 4.1 2.1-6.7-5.5-4h6.8z"/></svg>Google
+### Google
 
 ---
 
@@ -283,7 +283,7 @@ Route Google Gemini CLI through AI Gateway, govern Gemini model traffic, and sen
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10a3 3 0 10-3-3M3 12h15a3 3 0 11-3 3M3 16h7"/></svg>Mistral
+### Mistral
 
 ---
 
@@ -301,7 +301,7 @@ Govern traffic to Mistral AI models, and use Mistral embeddings for semantic cac
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9a9 9 0 01-9 9"/></svg>GitHub
+### GitHub
 
 ---
 
@@ -319,11 +319,11 @@ Route GitHub Copilot through AI Gateway, create API proxies from GitHub reposito
 
 <div class="card" markdown="1">
 
-### <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 10h18M7 15h3"/></svg>Stripe
+### Stripe
 
 ---
 
-Sell paid subscription plans for your APIs, and bill AI agents for the MCP tools they call.
+Sell paid subscription plans for your APIs, and bill consumers for their usage through Stripe.
 
 [Explore Stripe resources &rarr;](vendors/stripe.md)
 

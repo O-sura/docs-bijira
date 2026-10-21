@@ -16,11 +16,11 @@ content_type: "overview"
 
 # Govern GitHub Copilot and build APIs from GitHub
 
-WSO2 API Platform works alongside the GitHub tools you already use. Route GitHub Copilot through AI Gateway, build API proxies from GitHub repositories, and design governed APIs with Copilot in VS Code. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside the GitHub tools you already use. Route GitHub Copilot through AI Gateway, build API proxies from GitHub repositories, and design governed APIs with Copilot in VS Code.
 
 ## End-to-end guides
 
-Follow a scenario from start to finish with a GitHub product.
+A step-by-step guide for GitHub Copilot.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -80,13 +80,13 @@ Draft a specification with Copilot, then review and fix governance findings.
 
 ## Architecture and responsibility model
 
-The journeys split work between WSO2 and GitHub differently:
+WSO2 API Platform and GitHub split the work like this:
 
-| Journey | WSO2 role | GitHub role | Runtime traffic |
+| Scenario | WSO2 role | GitHub role | Runtime traffic |
 | --- | --- | --- | --- |
 | GitHub Copilot through AI Gateway | Authenticates developers and applies guardrails, rate limits, and analytics | Provides the Copilot clients | BYOK model requests go through WSO2 AI Gateway to the model provider |
-| API proxy from a GitHub repository | Builds, deploys, and manages the API proxy | Hosts the source and configuration | API traffic goes through the WSO2 gateway; GitHub isn't in the request path |
-| API design with Copilot in VS Code | Provides the API Designer extension and governance rules | Provides Copilot Chat | Runs in the developer's editor; no API traffic is involved |
+| API proxy from a GitHub repository | Builds, deploys, and manages the API proxy | Hosts the source and configuration | API traffic goes through the WSO2 gateway, not through GitHub |
+| API design with Copilot in VS Code | Provides the API Designer extension and governance rules | Provides Copilot Chat | Runs in the developer's editor, with no API traffic involved |
 
 ## Learn more
 

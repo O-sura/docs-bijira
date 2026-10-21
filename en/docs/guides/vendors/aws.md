@@ -16,11 +16,11 @@ content_type: "overview"
 
 # Build and govern AI workloads and APIs on AWS
 
-WSO2 API Platform works alongside the AWS services you already use. Govern AI traffic to Amazon Bedrock, bring APIs running on Amazon API Gateway under one control plane, and run gateways on Amazon EKS with AWS identity and observability. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside the AWS services you already use. Govern AI traffic to Amazon Bedrock, bring APIs running on Amazon API Gateway under one control plane, and run gateways on Amazon EKS with AWS identity and observability.
 
 ## End-to-end guides and tutorials
 
-Follow an AWS scenario from start to finish. Guides are part of this documentation. Tutorials are published on the WSO2 API Platform Learn Hub and written for the product version they name.
+Step-by-step guides for AWS. Guides are part of this documentation. Tutorials are published on the WSO2 API Platform Learn Hub and written for the product version they name.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -48,6 +48,7 @@ Route, secure, and govern traffic to foundation models on Amazon Bedrock through
 
 Connect Amazon Bedrock with a Bedrock API key or SigV4, and manage its models and credentials centrally.
 
+- [Use Amazon Bedrock and Bedrock Guardrails with WSO2 AI Gateway](https://wso2.com/api-platform/learn/aws-bedrock-llm-guardrails-wso2-ai-gateway/) <span class="vendor-meta">Learn Hub tutorial</span>
 - [Amazon Bedrock provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/aws-bedrock.md) <span class="vendor-meta">AI Gateway</span>
 
 </div>
@@ -59,7 +60,6 @@ Connect Amazon Bedrock with a Bedrock API key or SigV4, and manage its models an
 Sign requests with AWS Signature Version 4 (SigV4) using IAM credentials, a workload role, or cross-account role assumption.
 
 - [Choose an authentication method](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/aws-bedrock.md#choose-an-authentication-method) <span class="vendor-meta">AI Gateway</span>
-- [Authenticate to backends](../../ai-gateway/2026.09.24/authenticate-backends.md) <span class="vendor-meta">AI Gateway</span>
 - [AWS Authentication policy](https://wso2.com/api-platform/policy-hub/policies/aws-authentication) <span class="vendor-meta">Policy Hub</span>
 
 </div>
@@ -83,7 +83,7 @@ Routing, token limits, cost control, and the gateway's other policies work the s
 
 ## Federate with Amazon API Gateway
 
-Manage the APIs you run on Amazon API Gateway from the WSO2 control plane. WSO2 API Platform governs the API metadata only; consumers continue to call Amazon API Gateway directly.
+Manage the APIs you run on Amazon API Gateway from the WSO2 control plane. WSO2 API Platform governs only the API metadata. Consumers continue to call Amazon API Gateway directly.
 
 <div class="vendor-cap" markdown="1">
 
@@ -156,9 +156,9 @@ Export gateway logs, metrics, and traces through Fluent Bit, an OpenTelemetry Co
 
 ## Architecture and responsibility model
 
-The three journeys split work between WSO2 and AWS differently:
+WSO2 API Platform and AWS split the work like this:
 
-| Journey | WSO2 role | AWS role | Runtime traffic |
+| Scenario | WSO2 role | AWS role | Runtime traffic |
 | --- | --- | --- | --- |
 | Amazon Bedrock through AI Gateway | Proxies and governs AI requests | Hosts the selected model and optional Bedrock guardrail | Goes through WSO2 AI Gateway to Amazon Bedrock |
 | Amazon API Gateway discovery | Control plane, governance, catalog, and compliance | Hosts and runs the API | Goes directly to Amazon API Gateway |

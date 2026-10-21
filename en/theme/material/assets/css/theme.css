@@ -598,73 +598,6 @@
     }
 }
 
-/* Vendor guide pages: filter deployment-specific resources without hiding
-   end-to-end guides or shared architecture and reference sections. */
-.md-typeset .vendor-deployment-switch {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 1.5rem 0 0.75rem;
-    padding: 0.35rem;
-    border: 1px solid var(--md-default-fg-color--lightest);
-    border-radius: var(--md-border-radius-2x);
-    background: var(--md-default-bg-color);
-}
-
-.md-typeset .vendor-deployment-heading {
-    display: none !important;
-}
-
-.md-typeset .vendor-deployment-switch__label {
-    padding: 0.35rem 0.65rem;
-    color: var(--md-default-fg-color--light);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.md-typeset .vendor-deployment-switch button {
-    padding: 0.38rem 0.85rem;
-    border: 0;
-    border-radius: calc(var(--md-border-radius-2x) - 2px);
-    background: transparent;
-    color: var(--md-default-fg-color--light);
-    font: inherit;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.md-typeset .vendor-deployment-switch button:hover {
-    color: var(--md-primary-fg-color);
-}
-
-.md-typeset .vendor-deployment-switch button[aria-pressed="true"] {
-    background: rgba(255, 115, 0, 0.12);
-    color: var(--md-primary-fg-color);
-}
-
-.md-typeset .vendor-deployment-switch button:focus-visible {
-    outline: 2px solid var(--md-primary-fg-color);
-    outline-offset: 2px;
-}
-
-.md-typeset .vendor-deployment-hidden {
-    display: none !important;
-}
-
-@media screen and (max-width: 44.984375em) {
-    .md-typeset .vendor-deployment-switch__label {
-        flex-basis: 100%;
-    }
-
-    .md-typeset .vendor-deployment-switch button {
-        flex: 1 1 auto;
-    }
-}
-
 /* Vendor guide pages: end-to-end guides as a flat grid of linked boxes, styled like the guide items on the overview */
 .md-typeset .vendor-guide-list > ul {
     display: grid;
@@ -769,7 +702,7 @@
 }
 
 .md-typeset .vendor-meta::before {
-    content: "\2014";
+    content: "\00B7";
     margin-right: 0.4rem;
 }
 

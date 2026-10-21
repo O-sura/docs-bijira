@@ -15,11 +15,11 @@ content_type: "overview"
 
 # Govern OpenAI models and Codex CLI
 
-WSO2 API Platform works alongside the OpenAI products you already use. Govern OpenAI model traffic, route Codex CLI through AI Gateway, and use OpenAI embeddings for semantic caching and guardrails. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside the OpenAI products you already use. Govern OpenAI model traffic, route Codex CLI through AI Gateway, and use OpenAI embeddings for semantic caching and guardrails.
 
 ## End-to-end guides
 
-Follow a scenario from start to finish with an OpenAI product.
+A step-by-step guide for Codex CLI.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -39,7 +39,7 @@ Route, secure, and govern traffic to OpenAI models through WSO2 AI Gateway, incl
 
 ### OpenAI as an LLM provider
 
-Connect the OpenAI API with a key that the gateway stores, so applications never hold it.
+Register the OpenAI API with the gateway. The gateway keeps the API key, not your applications.
 
 - [OpenAI provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/openai.md) <span class="vendor-meta">AI Gateway</span>
 
@@ -52,6 +52,8 @@ Connect the OpenAI API with a key that the gateway stores, so applications never
 Semantic caching and the semantic prompt guard compare prompts by meaning, and can use an OpenAI embedding model that you set in the gateway configuration.
 
 - [Semantic caching](../../ai-gateway/2026.09.24/semantic-caching.md) <span class="vendor-meta">AI Gateway</span>
+- [Embedding providers for semantic caching](../../ai-gateway/2026.09.24/setup-and-deployment/production-deployment/ai-workload-tuning.md#provision-infrastructure-for-semantic-caching) <span class="vendor-meta">AI Gateway</span>
+- [Semantic Cache policy](https://wso2.com/api-platform/policy-hub/policies/semantic-cache) <span class="vendor-meta">Policy Hub</span>
 - [Semantic prompt guard policy](https://wso2.com/api-platform/policy-hub/policies/semantic-prompt-guard) <span class="vendor-meta">Policy Hub</span>
 
 </div>
@@ -60,9 +62,9 @@ Routing, token limits, cost control, and the gateway's other policies work the s
 
 ## Architecture and responsibility model
 
-The journeys split work between WSO2 and OpenAI differently:
+WSO2 API Platform and OpenAI split the work like this:
 
-| Journey | WSO2 role | OpenAI role | Runtime traffic |
+| Scenario | WSO2 role | OpenAI role | Runtime traffic |
 | --- | --- | --- | --- |
 | Codex CLI through AI Gateway | Authenticates developers and applies guardrails, rate limits, and analytics | Hosts the models and bills the API key | Goes through WSO2 AI Gateway to OpenAI |
 | Applications calling OpenAI models | Proxies and governs LLM requests | Hosts the models | Goes through WSO2 AI Gateway to OpenAI |

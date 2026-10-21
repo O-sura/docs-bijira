@@ -16,9 +16,7 @@ content_type: "overview"
 
 # Govern Azure AI services and secure APIs with Entra ID
 
-WSO2 API Platform works alongside the Microsoft Azure services you already use. Govern Azure OpenAI and Azure AI Foundry traffic, moderate content with Azure AI Content Safety, secure APIs with Microsoft Entra ID, and send gateway telemetry to Azure Monitor. This page brings those capabilities together in one place.
-
-There is no Azure-specific end-to-end guide yet. Use the resources below for the capability you want to configure.
+WSO2 API Platform works alongside the Microsoft Azure services you already use. Govern Azure OpenAI and Azure AI Foundry traffic, moderate content with Azure AI Content Safety, secure APIs with Microsoft Entra ID, and send gateway telemetry to Azure Monitor.
 
 ## AI Gateway with Azure OpenAI and Azure AI Foundry
 
@@ -28,7 +26,7 @@ Route, secure, and govern traffic to your Azure model deployments through WSO2 A
 
 ### Azure OpenAI and Azure AI Foundry as LLM providers
 
-Point the gateway at your Azure deployment with a key that the gateway stores, so applications never hold it.
+Point the gateway at your Azure deployment. The gateway stores the deployment key, so your applications don't need it.
 
 - [Azure OpenAI provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/azure-openai.md) <span class="vendor-meta">AI Gateway</span>
 - [Azure AI Foundry provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/azure-ai-foundry.md) <span class="vendor-meta">AI Gateway</span>
@@ -67,6 +65,19 @@ Check prompts and responses against Azure AI Content Safety categories and sever
 
 </div>
 
+<div class="vendor-cap" markdown="1">
+
+### Semantic caching and guardrails
+
+Semantic caching and the semantic prompt guard compare prompts by meaning, and can use an Azure OpenAI embedding deployment that you set in the gateway configuration.
+
+- [Semantic caching](../../ai-gateway/2026.09.24/semantic-caching.md) <span class="vendor-meta">AI Gateway</span>
+- [Embedding providers for semantic caching](../../ai-gateway/2026.09.24/setup-and-deployment/production-deployment/ai-workload-tuning.md#provision-infrastructure-for-semantic-caching) <span class="vendor-meta">AI Gateway</span>
+- [Semantic Cache policy](https://wso2.com/api-platform/policy-hub/policies/semantic-cache) <span class="vendor-meta">Policy Hub</span>
+- [Semantic prompt guard policy](https://wso2.com/api-platform/policy-hub/policies/semantic-prompt-guard) <span class="vendor-meta">Policy Hub</span>
+
+</div>
+
 Routing, token limits, cost control, and the gateway's other policies work the same way for every provider. See the [AI Gateway documentation](../../ai-gateway/2026.09.24/overview.md).
 
 ## Microsoft Entra ID
@@ -102,13 +113,13 @@ Point the collector at Azure Monitor for both metrics and traces.
 
 ## Architecture and responsibility model
 
-The journeys split work between WSO2 and Azure differently:
+WSO2 API Platform and Azure split the work like this:
 
-| Journey | WSO2 role | Azure role | Runtime traffic |
+| Scenario | WSO2 role | Azure role | Runtime traffic |
 | --- | --- | --- | --- |
 | Azure OpenAI and AI Foundry through AI Gateway | Proxies and governs LLM requests, and tracks cost per deployment | Hosts the model deployments | Goes through WSO2 AI Gateway to your Azure deployment |
 | Azure AI Content Safety | Runs the guardrail and blocks or passes the request | Scores the content | The gateway calls Content Safety alongside each request |
-| Entra ID and Azure Monitor | Validates Entra ID tokens and emits telemetry | Issues tokens, and stores and displays telemetry | API traffic goes through the WSO2 gateway; telemetry goes to Azure Monitor |
+| Entra ID and Azure Monitor | Validates Entra ID tokens and emits telemetry | Issues tokens, and stores and displays telemetry | API traffic goes through the WSO2 gateway, and telemetry goes to Azure Monitor |
 
 ## Learn more
 

@@ -16,11 +16,11 @@ content_type: "overview"
 
 # Govern Gemini models and Gemini CLI
 
-WSO2 API Platform works alongside the Google products and services you already use. Govern Gemini model traffic, route Gemini CLI through AI Gateway, and send gateway telemetry to Google Cloud. This page brings those capabilities together in one place.
+WSO2 API Platform works alongside the Google products and services you already use. Govern Gemini model traffic, route Gemini CLI through AI Gateway, and send gateway telemetry to Google Cloud.
 
 ## End-to-end guides
 
-Follow a scenario from start to finish with a Google product.
+A step-by-step guide for Gemini CLI.
 
 <div class="vendor-guide-list" markdown="1">
 
@@ -40,7 +40,7 @@ Route, secure, and govern traffic to Gemini models through WSO2 AI Gateway, incl
 
 ### Gemini as an LLM provider
 
-Connect the Gemini API with a key that the gateway stores, so applications never hold it.
+Register the Gemini API with the gateway. Applications call the gateway and never see the Gemini API key.
 
 - [Gemini provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/gemini.md) <span class="vendor-meta">AI Gateway</span>
 
@@ -77,13 +77,13 @@ Point the collector at Cloud Monitoring for metrics and at Cloud Trace for trace
 
 ## Architecture and responsibility model
 
-The journeys split work between WSO2 and Google differently:
+WSO2 API Platform and Google split the work like this:
 
-| Journey | WSO2 role | Google role | Runtime traffic |
+| Scenario | WSO2 role | Google role | Runtime traffic |
 | --- | --- | --- | --- |
 | Gemini CLI through AI Gateway | Authenticates developers and applies guardrails, rate limits, and analytics | Hosts the Gemini models and bills the API key | Goes through WSO2 AI Gateway to the Gemini API |
 | Applications calling Gemini models | Proxies and governs LLM requests | Hosts the Gemini models | Goes through WSO2 AI Gateway to the Gemini API |
-| Gateway telemetry in Google Cloud | Emits metrics and traces from the gateway | Stores and displays the telemetry | The collector sends telemetry to Google Cloud; API traffic is unaffected |
+| Gateway telemetry in Google Cloud | Emits metrics and traces from the gateway | Stores and displays the telemetry | The collector sends telemetry to Google Cloud without affecting API traffic |
 
 ## Learn more
 
