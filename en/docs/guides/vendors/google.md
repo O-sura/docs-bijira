@@ -10,7 +10,7 @@ tags:
   - gemini-cli
   - vendor-guides
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 content_type: "overview"
 ---
 
@@ -28,7 +28,7 @@ A step-by-step guide for Gemini CLI.
 
     Route Gemini CLI requests through a Gemini provider and an App LLM Proxy.
 
-    Guide · Gemini CLI
+    Guide · Gemini CLI · Hybrid
 
 </div>
 
@@ -42,7 +42,19 @@ Route, secure, and govern traffic to Gemini models through WSO2 AI Gateway, incl
 
 Register the Gemini API with the gateway. Applications call the gateway and never see the Gemini API key.
 
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+- [Configure an LLM provider](../../cloud/ai-workspace/llm-providers/configure-provider.md#authentication) <span class="vendor-meta">AI Workspace</span>
+- [Call Gemini through the gateway](../../cloud/ai-workspace/using-sdks.md#gemini) <span class="vendor-meta">AI Workspace</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 - [Gemini provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/gemini.md) <span class="vendor-meta">AI Gateway</span>
+- [Configure an LLM provider](../../ai-workspace/1.0.0/llm-providers/configure-provider.md#authentication) <span class="vendor-meta">AI Workspace</span>
+
+</div>
 
 </div>
 
@@ -52,12 +64,26 @@ Register the Gemini API with the gateway. Applications call the gateway and neve
 
 Keep clients on the OpenAI request format. A transformer policy converts requests and responses for Gemini.
 
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 - [OpenAI-format compatibility](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/gemini.md#openai-format-compatibility) <span class="vendor-meta">AI Gateway</span>
 - [OpenAI to Gemini transformer policy](https://wso2.com/api-platform/policy-hub/policies/openai-to-gemini-transformer) <span class="vendor-meta">Policy Hub</span>
 
 </div>
 
+</div>
+
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+Routing, token limits, cost control, and the other AI Workspace policies work the same way for every provider. See the [AI Workspace overview](../../cloud/ai-workspace/overview.md).
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 Routing, token limits, cost control, and the gateway's other policies work the same way for every provider. See the [AI Gateway documentation](../../ai-gateway/2026.09.24/overview.md).
+
+</div>
 
 ## Google Cloud Monitoring and Cloud Trace
 
@@ -69,9 +95,19 @@ Send the metrics and traces of a gateway you run to Google Cloud through an Open
 
 Point the collector at Cloud Monitoring for metrics and at Cloud Trace for traces.
 
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+- [Send AI Gateway traces to Cloud Trace](../../cloud/ai-gateway/observability/tracing.md#cloud-native-tracing-solutions) <span class="vendor-meta">AI Gateway</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 - [Send API Gateway metrics to Cloud Monitoring](../../api-gateway/1.2.0/observability/metrics/alternative-backends.md#google-cloud-monitoring) <span class="vendor-meta">API Gateway</span>
 - [Send API Gateway traces to Cloud Trace](../../api-gateway/1.2.0/observability/tracing/alternative-backends.md#google-cloud-trace) <span class="vendor-meta">API Gateway</span>
 - [Send AI Gateway traces to Cloud Trace](../../ai-gateway/2026.09.24/logging-and-tracing/tracing.md#cloud-native-tracing-solutions) <span class="vendor-meta">AI Gateway</span>
+
+</div>
 
 </div>
 

@@ -321,6 +321,185 @@ onEachPage(function () {
 });
 
 /*
+ * Vendor guide pages: deployment type switch
+ * -------------------------------------------------------------------------
+ * Deployment-specific content is wrapped in elements with a data-deployments
+ * attribute (for example <div class="vendor-links" data-deployments="cloud">).
+ * When a page uses more than one deployment type, build a switch before the
+ * first section that has such content and show only the content for the
+ * selected type. A capability row or an h2 section whose deployment-specific
+ * content is all hidden is hidden too. Content without the attribute (end-to-end
+ * guides, architecture, learn more) is always shown. Cloud is the initial
+ * selection on every page load, or the first type the page has without Cloud.
+ */
+var vendorDeploymentHashHandler = null;
+var vendorDeploymentReveal = null;
+
+// Search results and other links to an anchor on the current page don't fire
+// hashchange under instant navigation, so reveal the target on click, before
+// Material scrolls to it.
+document.addEventListener('click', function (event) {
+  if (!vendorDeploymentReveal || !event.target.closest) return;
+  var link = event.target.closest('a[href*="#"]');
+  if (!link) return;
+  var url = new URL(link.href, location.href);
+  if (url.pathname !== location.pathname || !url.hash) return;
+  vendorDeploymentReveal(decodeURIComponent(url.hash.slice(1)), false);
+}, true);
+
+onEachPage(function () {
+  vendorDeploymentReveal = null;
+  var article = document.querySelector('.md-content__inner');
+  if (!article || !location.pathname.includes('/guides/vendors/')) return;
+
+  var order = ['cloud', 'hybrid', 'self-hosted'];
+  var labels = { cloud: 'Cloud', hybrid: 'Hybrid', 'self-hosted': 'Self-hosted' };
+  var descriptions = {
+    cloud: 'WSO2 hosts the control plane and the gateways.',
+    hybrid: 'WSO2 hosts the control plane, and you run the gateways.',
+    'self-hosted': 'You run the gateways, on their own or with your own control plane.'
+  };
+
+  var tagged = Array.prototype.slice.call(article.querySelectorAll('[data-deployments]'));
+  if (!tagged.length) return;
+  var typesOf = function (element) {
+    return element.getAttribute('data-deployments').split(/\s+/);
+  };
+  var types = order.filter(function (type) {
+    return tagged.some(function (element) { return typesOf(element).indexOf(type) >= 0; });
+  });
+  if (types.length < 2) return;
+
+  // Group the article into h2 sections, and keep only those with tagged content.
+  var sections = [];
+  Array.prototype.forEach.call(article.children, function (node) {
+    if (node.tagName === 'H2') sections.push({ heading: node, nodes: [] });
+    if (sections.length) sections[sections.length - 1].nodes.push(node);
+  });
+  sections = sections.filter(function (section) {
+    return section.nodes.some(function (node) {
+      return node.hasAttribute('data-deployments') || node.querySelector('[data-deployments]');
+    });
+  });
+  var caps = Array.prototype.filter.call(article.querySelectorAll('.vendor-cap'), function (cap) {
+    return cap.querySelector('[data-deployments]');
+  });
+
+  var switcher = document.createElement('div');
+  switcher.className = 'vendor-deployment-switch';
+  switcher.setAttribute('role', 'group');
+  switcher.setAttribute('aria-label', 'Deployment type');
+
+  var switchLabel = document.createElement('span');
+  switchLabel.className = 'vendor-deployment-switch__label';
+  switchLabel.textContent = 'Show resources for';
+  switcher.appendChild(switchLabel);
+
+  var options = document.createElement('div');
+  options.className = 'vendor-deployment-switch__options';
+  switcher.appendChild(options);
+
+  var description = document.createElement('p');
+  description.className = 'vendor-deployment-switch__description';
+  description.setAttribute('aria-live', 'polite');
+
+  var buttons = types.map(function (type) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = labels[type];
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', function () { select(type); });
+    options.appendChild(button);
+    return button;
+  });
+
+  var first = sections.length ? sections[0].heading : tagged[0];
+  first.parentNode.insertBefore(switcher, first);
+  first.parentNode.insertBefore(description, first);
+
+  function isHidden(element) {
+    return !!(element && element.closest('[hidden]'));
+  }
+
+  function select(type) {
+    tagged.forEach(function (element) {
+      element.hidden = typesOf(element).indexOf(type) < 0;
+    });
+    caps.forEach(function (cap) {
+      cap.hidden = false;
+      cap.hidden = !Array.prototype.some.call(cap.querySelectorAll('[data-deployments]'),
+        function (element) { return !element.hidden; });
+    });
+    sections.forEach(function (section) {
+      section.nodes.forEach(function (node) { if (node === section.heading) node.hidden = false; });
+      var shown = section.nodes.some(function (node) {
+        if (node === section.heading) return false;
+        if (node.hasAttribute('data-deployments') || node.classList.contains('vendor-cap')) {
+          return !node.hidden;
+        }
+        return Array.prototype.some.call(node.querySelectorAll('[data-deployments]'),
+          function (element) { return !isHidden(element); });
+      });
+      section.nodes.forEach(function (node) {
+        var own = node.hasAttribute('data-deployments') || node.classList.contains('vendor-cap');
+        if (!own) node.hidden = !shown;
+      });
+    });
+    buttons.forEach(function (button, i) {
+      button.setAttribute('aria-pressed', types[i] === type ? 'true' : 'false');
+    });
+    description.textContent = descriptions[type];
+    var toc = document.querySelector('.md-sidebar--secondary');
+    if (toc) {
+      toc.querySelectorAll('a[href*="#"]').forEach(function (link) {
+        var id = decodeURIComponent(new URL(link.href, location.href).hash.slice(1));
+        var target = id ? document.getElementById(id) : null;
+        var item = link.closest('.md-nav__item');
+        if (target && item) item.hidden = isHidden(target);
+      });
+    }
+  }
+
+  function current() {
+    var pressed = buttons.filter(function (button) {
+      return button.getAttribute('aria-pressed') === 'true';
+    })[0];
+    return pressed ? types[buttons.indexOf(pressed)] : null;
+  }
+
+  // A link to content hidden by the current selection switches to a type that
+  // shows it, in the order the switch lists them.
+  function reveal(id, scroll) {
+    var target = id ? document.getElementById(id) : null;
+    if (!target || !isHidden(target)) return;
+    var before = current();
+    var candidates = types;
+    for (var i = 0; i < candidates.length; i++) {
+      select(candidates[i]);
+      if (!isHidden(target)) {
+        if (scroll) target.scrollIntoView();
+        return;
+      }
+    }
+    select(before);
+  }
+
+  function openHashTarget() {
+    reveal(decodeURIComponent(location.hash.slice(1)), true);
+  }
+
+  if (vendorDeploymentHashHandler) {
+    window.removeEventListener('hashchange', vendorDeploymentHashHandler);
+  }
+  vendorDeploymentHashHandler = openHashTarget;
+  vendorDeploymentReveal = reveal;
+  window.addEventListener('hashchange', vendorDeploymentHashHandler);
+
+  select(types[0]);
+  openHashTarget();
+});
+
+/*
  * Handle opening external links in a new tab
  * and initialize JSON tree formatter
  */

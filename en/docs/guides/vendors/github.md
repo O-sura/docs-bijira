@@ -10,7 +10,7 @@ tags:
   - vs-code
   - vendor-guides
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 content_type: "overview"
 ---
 
@@ -28,7 +28,7 @@ A step-by-step guide for GitHub Copilot.
 
     Route GitHub Copilot CLI and Copilot Chat in VS Code through an App LLM Proxy.
 
-    Guide · GitHub Copilot
+    Guide · GitHub Copilot · Hybrid
 
 </div>
 
@@ -42,11 +42,32 @@ With bring your own key (BYOK), GitHub Copilot sends requests for your model to 
 
 The Copilot guide uses an OpenAI provider.
 
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+- [Configure GitHub Copilot with AI Gateway](../ai-and-mcp/ai-coding-assistants/github-copilot-configuration-with-ai-gateway.md) <span class="vendor-meta">Guide</span>
+- [Configure an LLM provider](../../cloud/ai-workspace/llm-providers/configure-provider.md#authentication) <span class="vendor-meta">AI Workspace</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 - [OpenAI provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/openai.md) <span class="vendor-meta">AI Gateway</span>
 
 </div>
 
+</div>
+
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+Routing, token limits, cost control, and the other AI Workspace policies work the same way for every provider. See the [AI Workspace overview](../../cloud/ai-workspace/overview.md).
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 Routing, token limits, cost control, and the gateway's other policies work the same way for every provider. See the [AI Gateway documentation](../../ai-gateway/2026.09.24/overview.md).
+
+</div>
 
 ## GitHub repositories
 
@@ -58,13 +79,17 @@ Keep an API proxy's contract and configuration in a GitHub repository, then buil
 
 Connect a repository that holds the API contract and a `component.yaml` file.
 
-- [Create an API proxy from a GitHub repository](../../cloud/create-api-proxy/my-apis/http/import-api-from-github.md) <span class="vendor-meta">Cloud</span>
+<div class="vendor-links" data-deployments="cloud" markdown="1">
+
+- [Create an API proxy from a GitHub repository](../../cloud/create-api-proxy/my-apis/http/import-api-from-github.md) <span class="vendor-meta">Cloud console</span>
+
+</div>
 
 </div>
 
 ## GitHub Copilot in VS Code
 
-The API Designer extension for VS Code uses GitHub Copilot Chat to draft, edit, and fix OpenAPI specifications, and checks them against governance rules.
+The API Designer extension for VS Code uses GitHub Copilot Chat to draft, edit, and fix OpenAPI specifications, and checks them against governance rules. It works the same way for every deployment.
 
 <div class="vendor-cap" markdown="1">
 

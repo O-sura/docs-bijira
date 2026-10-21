@@ -685,14 +685,85 @@
     margin: 0 0 0.4rem;
 }
 
-.md-typeset .vendor-cap > ul {
+/* Links can sit directly in the row, or in a .vendor-links block per deployment type */
+.md-typeset .vendor-cap > ul,
+.md-typeset .vendor-cap > .vendor-links > ul {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-.md-typeset .vendor-cap > ul > li {
+.md-typeset .vendor-cap > ul > li,
+.md-typeset .vendor-cap > .vendor-links > ul > li {
     margin: 0.2rem 0 0;
+}
+
+/* Vendor guide pages: deployment type switch built by theme.js,
+   styled like the guides overview switch */
+.md-typeset .vendor-deployment-switch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin: 1.5rem 0 0;
+}
+
+.md-typeset .vendor-deployment-switch__label {
+    color: var(--md-default-fg-color--light);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.md-typeset .vendor-deployment-switch__options {
+    display: inline-flex;
+    padding: 0.2rem;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 999px;
+}
+
+.md-typeset .vendor-deployment-switch button {
+    padding: 0.35rem 1.1rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--md-default-fg-color--light);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.md-typeset .vendor-deployment-switch button:hover {
+    color: var(--md-primary-fg-color);
+}
+
+.md-typeset .vendor-deployment-switch button[aria-pressed="true"] {
+    background-color: rgba(255, 115, 0, 0.12);
+    color: var(--md-primary-fg-color);
+}
+
+.md-typeset .vendor-deployment-switch button:focus-visible {
+    outline: 2px solid var(--md-primary-fg-color);
+    outline-offset: 2px;
+}
+
+.md-typeset .vendor-deployment-switch__description {
+    margin: 0.5rem 0 0;
+    color: var(--md-default-fg-color--light);
+    font-size: 0.7rem;
+}
+
+.md-typeset .vendor-cap[hidden],
+.md-typeset .admonition[hidden],
+.md-nav__item[hidden] {
+    display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .md-typeset .vendor-deployment-switch button {
+        transition: none;
+    }
 }
 
 .md-typeset .vendor-meta {

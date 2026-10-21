@@ -9,7 +9,7 @@ tags:
   - monetization
   - vendor-guides
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 content_type: "overview"
 ---
 
@@ -27,13 +27,13 @@ A step-by-step guide for billing with Stripe.
 
     Publish an API with a pay-as-you-go plan and let the platform sync per-request usage to Stripe.
 
-    Guide · Stripe billing
+    Guide · Stripe billing · Cloud
 
 </div>
 
 ## Stripe billing for APIs
 
-API Platform creates the Stripe products and prices for your plans and reports usage to Stripe, so you don't write billing code.
+In WSO2 Cloud, API Platform creates the Stripe products and prices for your plans and reports usage to Stripe, so you don't write billing code.
 
 <div class="vendor-cap" markdown="1">
 

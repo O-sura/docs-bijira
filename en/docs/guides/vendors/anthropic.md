@@ -11,7 +11,7 @@ tags:
   - claude-desktop
   - vendor-guides
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-20
+last_updated: 2026-10-21
 content_type: "overview"
 ---
 
@@ -29,31 +29,31 @@ Step-by-step guides for Claude Code and Claude Desktop. Guides are part of this 
 
     Route Claude Code requests through an Anthropic provider and an App LLM Proxy.
 
-    Guide · Anthropic API key
+    Guide · Anthropic API key · Hybrid
 
 - [Configure Claude Code with AI Gateway using a Claude subscription](../ai-and-mcp/ai-coding-assistants/claude-code-subscription-configuration-with-ai-gateway.md)
 
     Route Claude Team or Enterprise traffic through AI Gateway with enterprise identity.
 
-    Guide · Claude subscription
+    Guide · Claude subscription · Hybrid, Self-hosted
 
 - [Build an AI app with Claude Code that calls governed APIs](../ai-and-mcp/build-ai-app-with-claude-code.md)
 
     Give Claude Code governed, rate-limited access to your backend APIs.
 
-    Guide · Claude Code
+    Guide · Claude Code · Cloud
 
 - [Convert a REST API into an MCP tool for Claude Desktop](../ai-and-mcp/convert-rest-api-to-mcp-server.md)
 
     Expose a REST API as a governed MCP server and use it in Claude Desktop.
 
-    Guide · Claude Desktop
+    Guide · Claude Desktop · Cloud
 
 - [Control Claude Code costs across a large engineering team](https://wso2.com/api-platform/learn/control-claude-code-ai-cost-with-ai-gateway/)
 
     Add token limits, cost caps, semantic caching, prompt compression, and per-developer spend visibility to a shared Claude Code setup.
 
-    Learn Hub tutorial · Anthropic API key
+    Learn Hub tutorial · Anthropic API key · Hybrid, Self-hosted
 
 </div>
 
@@ -68,13 +68,47 @@ Route, secure, and govern traffic to Claude models through WSO2 AI Gateway, incl
 
 ### Anthropic as an LLM provider
 
-Connect the Anthropic API with a key that the gateway stores. Anthropic expects the key in the `x-api-key` header, and the upstream URL carries no version segment.
+Connect the Anthropic API. The gateway holds the Anthropic key, so developers and applications never see it.
 
-- [Anthropic provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/anthropic.md) <span class="vendor-meta">AI Gateway</span>
+<div class="vendor-links" data-deployments="cloud" markdown="1">
+
+- [Create an AI API for Anthropic Claude](../../cloud/create-api-proxy/third-party-apis/claude.md) <span class="vendor-meta">Cloud console</span>
 
 </div>
 
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+- [Configure an LLM provider](../../cloud/ai-workspace/llm-providers/configure-provider.md#authentication) <span class="vendor-meta">AI Workspace</span>
+- [Call Anthropic through the gateway](../../cloud/ai-workspace/using-sdks.md#anthropic) <span class="vendor-meta">AI Workspace</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
+- [Anthropic provider](../../ai-gateway/2026.09.24/gateway-artifacts/llm-provider/supported-providers/anthropic.md) <span class="vendor-meta">AI Gateway</span>
+- [Configure an LLM provider](../../ai-workspace/1.0.0/llm-providers/configure-provider.md#authentication) <span class="vendor-meta">AI Workspace</span>
+
+</div>
+
+</div>
+
+<div class="vendor-links" data-deployments="cloud" markdown="1">
+
+Token limits, semantic caching, and the other AI API policies work the same way for every provider. See [AI APIs](../../cloud/create-api-proxy/third-party-apis/ai-apis.md).
+
+</div>
+
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+Routing, token limits, cost control, and the other AI Workspace policies work the same way for every provider. See the [AI Workspace overview](../../cloud/ai-workspace/overview.md).
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 Routing, token limits, cost control, and the gateway's other policies work the same way for every provider. See the [AI Gateway documentation](../../ai-gateway/2026.09.24/overview.md).
+
+</div>
 
 ## Claude Desktop and MCP tools
 
@@ -86,9 +120,28 @@ Expose your APIs and MCP servers to Claude Desktop and Claude Code through gover
 
 Put an MCP proxy in front of an MCP server, and control which tools Claude can call.
 
+<div class="vendor-links" data-deployments="cloud" markdown="1">
+
+- [Get started with MCP](../../cloud/mcp-servers/get-started-with-mcp.md) <span class="vendor-meta">Cloud console</span>
+- [Proxy remote MCP servers](../../cloud/mcp-servers/proxy-remote-servers.md) <span class="vendor-meta">Cloud console</span>
+- [Find and connect to an enterprise MCP server from the MCP Hub](../ai-and-mcp/find-and-connect-to-an-enterprise-mcp-server-from-the-mcp-hub.md) <span class="vendor-meta">Guide</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="hybrid" markdown="1">
+
+- [MCP proxies overview](../../cloud/ai-workspace/mcp-proxies/overview.md) <span class="vendor-meta">AI Workspace</span>
+- [Configure an MCP proxy](../../cloud/ai-workspace/mcp-proxies/configure-proxy.md) <span class="vendor-meta">AI Workspace</span>
+
+</div>
+
+<div class="vendor-links" data-deployments="self-hosted" markdown="1">
+
 - [MCP proxy](../../ai-gateway/2026.09.24/gateway-artifacts/mcp-proxy.md) <span class="vendor-meta">AI Gateway</span>
 - [MCP governance](../../ai-gateway/2026.09.24/mcp-governance.md) <span class="vendor-meta">AI Gateway</span>
-- [Find and connect to an enterprise MCP server from the MCP Hub](../ai-and-mcp/find-and-connect-to-an-enterprise-mcp-server-from-the-mcp-hub.md) <span class="vendor-meta">Guide</span>
+- [MCP proxies overview](../../ai-workspace/1.0.0/mcp-proxies/overview.md) <span class="vendor-meta">AI Workspace</span>
+
+</div>
 
 </div>
 
