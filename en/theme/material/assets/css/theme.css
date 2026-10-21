@@ -698,6 +698,26 @@
     margin: 0.2rem 0 0;
 }
 
+/* Without the switch script (for example before theme.js loads), label each
+   deployment-specific block so the stacked links still make sense */
+.md-typeset .vendor-links[data-deployments]::before {
+    display: block;
+    margin: 0.5rem 0 0.1rem;
+    color: var(--md-default-fg-color--light);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.md-typeset .vendor-links[data-deployments="cloud"]::before { content: "Cloud"; }
+.md-typeset .vendor-links[data-deployments="hybrid"]::before { content: "Hybrid"; }
+.md-typeset .vendor-links[data-deployments="self-hosted"]::before { content: "Self-hosted"; }
+.md-typeset .vendor-links[data-deployments="cloud hybrid"]::before { content: "Cloud and Hybrid"; }
+.md-typeset .vendor-links[data-deployments="hybrid self-hosted"]::before { content: "Hybrid and Self-hosted"; }
+
+.md-typeset .vendor-deployments-on .vendor-links[data-deployments]::before {
+    display: none;
+}
+
 /* Vendor guide pages: deployment type switch built by theme.js,
    styled like the guides overview switch */
 .md-typeset .vendor-deployment-switch {

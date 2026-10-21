@@ -415,6 +415,7 @@ onEachPage(function () {
 
   var first = sections.length ? sections[0].heading : tagged[0];
   first.parentNode.insertBefore(switcher, first);
+  article.classList.add('vendor-deployments-on');
   first.parentNode.insertBefore(description, first);
 
   function isHidden(element) {
