@@ -346,18 +346,18 @@ Create the two Secrets, using the key names the chart expects. The database pass
 If you installed the evaluation release in [Step 6](#step-6), `generate-secrets.sh` already created `<release-name>-platform-api-secrets` with an encryption key that you don't hold. Delete the evaluation Secrets first. Data that the evaluation release encrypted with the old key can't be read afterwards:
 
 ```bash
-oc -n <namespace> delete secret <release-name>-platform-api-secrets \
+oc -n <PROJECT-NAME> delete secret <release-name>-platform-api-secrets \
   <release-name>-ai-workspace-ui-secrets --ignore-not-found
 ```
 
 Then create the Secrets:
 
 ```bash
-oc -n <namespace> create secret generic <release-name>-platform-api-secrets \
+oc -n <PROJECT-NAME> create secret generic <release-name>-platform-api-secrets \
   --from-file=APIP_CP_ENCRYPTION_KEY=./encryption.key \
   --from-file=APIP_CP_DATABASE_PASSWORD=./db_password
 
-oc -n <namespace> create secret generic <release-name>-ai-workspace-ui-secrets \
+oc -n <PROJECT-NAME> create secret generic <release-name>-ai-workspace-ui-secrets \
   --from-file=APIP_AIW_AUTH_OIDC_CLIENT_SECRET=./oidc_client_secret
 ```
 
@@ -409,14 +409,14 @@ platform-api:
 #### Verify { #openshift-secrets-verify }
 
 ```bash
-oc -n <namespace> get pods
-oc -n <namespace> logs deploy/<release-name>-platform-api | grep -i -E 'error|fail'
+oc -n <PROJECT-NAME> get pods
+oc -n <PROJECT-NAME> logs deploy/<release-name>-platform-api | grep -i -E 'error|fail'
 ```
 
 A pod in `CreateContainerConfigError` means the referenced Secret or one of its keys is missing. Confirm the key names:
 
 ```bash
-oc -n <namespace> get secret <release-name>-platform-api-secrets \
+oc -n <PROJECT-NAME> get secret <release-name>-platform-api-secrets \
   -o json | jq -r '.data | keys[]'
 ```
 
@@ -731,7 +731,7 @@ ai-workspace-ui:
 Confirm the label selector matches the pods in your release before you rely on it:
 
 ```bash
-oc -n <namespace> get pods --show-labels
+oc -n <PROJECT-NAME> get pods --show-labels
 ```
 
 #### Tune the health probes { #openshift-ha-step-6-tune-the-health-probes }
@@ -751,9 +751,9 @@ platform-api:
 #### Verify { #openshift-ha-verify }
 
 ```bash
-oc -n <namespace> get pods -o wide
-oc -n <namespace> get hpa
-oc -n <namespace> get pdb
+oc -n <PROJECT-NAME> get pods -o wide
+oc -n <PROJECT-NAME> get hpa
+oc -n <PROJECT-NAME> get pdb
 ```
 
 Sign in, then delete a workspace pod other than the one serving you. Your session should survive, and the replacement pod should reach `Ready`.
@@ -859,7 +859,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: platform-api-ingress
-  namespace: <namespace>
+  namespace: <PROJECT-NAME>
 spec:
   podSelector:
     matchLabels:
@@ -898,7 +898,7 @@ For how network policies work on OpenShift, including the `policy-group.network.
 Confirm the pod labels in your release before you apply it, because a NetworkPolicy that selects nothing silently allows everything:
 
 ```bash
-oc -n <namespace> get pods --show-labels
+oc -n <PROJECT-NAME> get pods --show-labels
 ```
 
 #### Reduce what you run { #openshift-harden-step-6-reduce-what-you-run }
@@ -929,8 +929,8 @@ global:
 #### Verify { #openshift-harden-verify }
 
 ```bash
-oc -n <namespace> get pods -o custom-columns='POD:.metadata.name,SCC:.metadata.annotations.openshift\.io/scc,UID:.spec.containers[0].securityContext.runAsUser'
-oc -n <namespace> get networkpolicy
+oc -n <PROJECT-NAME> get pods -o custom-columns='POD:.metadata.name,SCC:.metadata.annotations.openshift\.io/scc,UID:.spec.containers[0].securityContext.runAsUser'
+oc -n <PROJECT-NAME> get networkpolicy
 ```
 
 Each pod should show the SCC you planned for, such as `restricted-v2`, and a UID from the project's range. Then sign in as a user with a read-only role and confirm the management actions are unavailable.
@@ -1028,7 +1028,7 @@ The Platform API's persistent volume claim carries a `helm.sh/resource-policy: k
 To remove that data deliberately:
 
 ```bash
-oc -n <namespace> delete pvc <release-name>-platform-api-data
+oc -n <PROJECT-NAME> delete pvc <release-name>-platform-api-data
 ```
 
 #### Upgrade { #openshift-operate-step-4-upgrade }
@@ -1044,7 +1044,7 @@ oc -n <namespace> delete pvc <release-name>-platform-api-data
 
     ```bash
     umask 077
-    helm template <release-name> ./ai-workspace -n <namespace> \
+    helm template <release-name> ./ai-workspace -n <PROJECT-NAME> \
       -f values-secrets.yaml -f my_values.yaml > ./next.yaml
     ```
 
@@ -1057,16 +1057,16 @@ oc -n <namespace> delete pvc <release-name>-platform-api-data
 4. Upgrade:
 
     ```bash
-    helm upgrade <release-name> ./ai-workspace -n <namespace> \
+    helm upgrade <release-name> ./ai-workspace -n <PROJECT-NAME> \
       -f values-secrets.yaml -f my_values.yaml --wait --timeout 10m
     ```
 
 5. Confirm the rollout finished and the pods are ready:
 
     ```bash
-    oc -n <namespace> rollout status deploy/<release-name>-platform-api
-    oc -n <namespace> rollout status deploy/<release-name>-ai-workspace
-    oc -n <namespace> get pods
+    oc -n <PROJECT-NAME> rollout status deploy/<release-name>-platform-api
+    oc -n <PROJECT-NAME> rollout status deploy/<release-name>-ai-workspace
+    oc -n <PROJECT-NAME> get pods
     ```
 
 With two or more replicas and a PodDisruptionBudget in place, the rollout replaces pods gradually and keeps serving. Workspace sessions held by a replaced pod end, so users on that pod sign in again.
@@ -1074,8 +1074,8 @@ With two or more replicas and a PodDisruptionBudget in place, the rollout replac
 #### Roll back { #openshift-operate-step-5-roll-back }
 
 ```bash
-helm history <release-name> -n <namespace>
-helm rollback <release-name> <revision> -n <namespace> --wait
+helm history <release-name> -n <PROJECT-NAME>
+helm rollback <release-name> <revision> -n <PROJECT-NAME> --wait
 ```
 
 A rollback reverts the manifests, not the database. Restore from backup separately if the upgrade changed the schema.
@@ -1083,7 +1083,7 @@ A rollback reverts the manifests, not the database. Restore from backup separate
 #### Uninstall { #openshift-operate-step-6-uninstall }
 
 ```bash
-helm uninstall <release-name> -n <namespace>
+helm uninstall <release-name> -n <PROJECT-NAME>
 ```
 
 The Platform API's persistent volume claim survives, because of its `helm.sh/resource-policy: keep` annotation. Secrets you created outside the chart, including the ones `generate-secrets.sh` made, also survive. Remove them deliberately once you're certain no data depends on them.
