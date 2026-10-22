@@ -45,7 +45,7 @@ A reference copy ships in the distribution under `resources/api-portal/db-script
 
 ## Store the password outside the configuration
 
-The password never appears in a configuration or values file. The container receives it as the environment variable `APIP_AP_DATABASE_PASSWORD`. On Kubernetes and OpenShift it comes from the release's Secret, under the key of the same name. `generate-secrets.sh` doesn't prompt for it: export `APIP_AP_DATABASE_PASSWORD` before you run the script, which writes it into the Secret only when it first creates the Secret. On VMs it comes from `api-platform.env` on each VM. See [Security Hardening → Secrets](security-hardening.md#secrets).
+The password never appears in `config.toml` or a Helm values file. The container receives it as the environment variable `APIP_AP_DATABASE_PASSWORD`. On Kubernetes and OpenShift it comes from the release's Secret, under the key of the same name. `generate-secrets.sh` doesn't prompt for it: export `APIP_AP_DATABASE_PASSWORD` before you run the script, which writes it into the Secret only when it first creates the Secret. On VMs it comes from `api-platform.env` on each VM. See [Security Hardening → Secrets](security-hardening.md#secrets).
 
 ## TLS to the database
 
