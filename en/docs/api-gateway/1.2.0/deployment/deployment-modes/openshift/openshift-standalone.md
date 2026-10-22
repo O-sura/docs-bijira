@@ -305,24 +305,40 @@ To reach the sandbox environment of an API, or to serve APIs on their own hostna
 
 ### Step 8: Deploy and invoke a test API { #step-8 }
 
-1. Get the Route hostnames:
+1. Get the gateway runtime Route's hostname, and forward the controller's management API port:
 
     ```bash
     GATEWAY_HOST=$(oc get route gateway-runtime -n <PROJECT-NAME> -o jsonpath='{.spec.host}')
+    oc port-forward svc/gateway-controller 9090:9090 -n <PROJECT-NAME> &
+    ```
+
+    If you enabled the management API Route in [Step 6](#step-6), you can use it instead of the port-forward. Get its hostname, then in the next steps use `$MGMT_HOST` in place of `localhost` in the `netrc` file, and `https://$MGMT_HOST` in place of `http://localhost:9090`. If your machine doesn't trust the router's certificate, also add `-k` to the `curl` command:
+
+    ```bash
     MGMT_HOST=$(oc get route gateway-management-api -n <PROJECT-NAME> -o jsonpath='{.spec.host}')
     ```
 
-    If you didn't enable the management API Route, forward the controller port instead. Then use `http://localhost:9090` in place of `https://$MGMT_HOST` in the next step:
+2. Write the management API credentials to a `netrc` file. A password passed to `curl -u` is visible in your shell history and the host's process list, and a `netrc` file only you can read keeps it out:
 
     ```bash
-    oc port-forward svc/gateway-controller 9090:9090 -n <PROJECT-NAME>
+    install -m 600 /dev/null controller.netrc
+    read -rp "Management API username: " ADMIN_USERNAME
+    read -rsp "Management API password: " ADMIN_PASSWORD && echo
+    printf 'machine localhost login %s password %s\n' "$ADMIN_USERNAME" "$ADMIN_PASSWORD" > controller.netrc
+    unset ADMIN_PASSWORD
     ```
 
-2. Deploy a sample API through the management API. Replace `<PASSWORD>` with the management API password: the one you set to turn on the management API Route, or the chart's default `admin` if you use the port-forward and haven't changed it:
+    Use the credentials you set to turn on the management API Route. If you use the port-forward and haven't changed them, they're the chart's defaults.
+
+    !!! warning
+        `admin` and `admin` are the chart's default management API credentials. Change them through `gateway.config.controller.auth.basic.users` for any deployment beyond evaluation.
+
+3. Deploy a sample API through the management API, then remove the credentials file:
 
     ```bash
-    curl -k -u "admin:<PASSWORD>" -X POST "https://$MGMT_HOST/api/management/v1/rest-apis" \
+    curl --fail --show-error -X POST http://localhost:9090/api/management/v1/rest-apis \
       -H "Content-Type: application/yaml" \
+      --netrc-file controller.netrc \
       --data-binary @- <<'EOF'
     apiVersion: gateway.api-platform.wso2.com/v1
     kind: RestApi
@@ -339,12 +355,11 @@ To reach the sandbox environment of an API, or to serve APIs on their own hostna
         - method: GET
           path: /info
     EOF
+
+    shred -u controller.netrc
     ```
 
-    !!! warning
-        `admin` and `admin` are the chart's default management API credentials. Change them through `gateway.config.controller.auth.basic.users` for any deployment beyond evaluation.
-
-3. Invoke the API through the gateway runtime Route:
+4. Invoke the API through the gateway runtime Route:
 
     Generated hostnames under the cluster's apps domain resolve through the cluster's wildcard DNS record. If you created the Route with a custom `--hostname`, create a DNS record that points it at the cluster's router before you invoke the API:
 
