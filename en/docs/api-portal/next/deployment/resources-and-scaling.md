@@ -51,5 +51,5 @@ On Kubernetes and OpenShift, point the liveness and readiness probes at `/health
 
 - [Deploy on VMs](deploy-on-vms.md), [Deploy on Kubernetes](deploy-on-kubernetes.md), and [Deploy on OpenShift](openshift.md): the scaling configuration for each platform
 - [Database Configuration](database-configuration.md): the connection budget your instance count spends
-- [Deploy & Verify](deploy-and-verify.md): confirming instances came up healthy
+- [Verify & Upgrade](deploy-and-verify.md): confirming instances came up healthy
 - [Security Hardening](security-hardening.md): the upload ceilings that inform memory sizing
