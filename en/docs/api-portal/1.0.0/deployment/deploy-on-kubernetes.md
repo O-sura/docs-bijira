@@ -1,6 +1,6 @@
 ---
 title: "Deploy on Kubernetes"
-description: "Deploy the API Portal & MCP Hub in production on Kubernetes with the api-portal Helm chart, end to end: secrets, TLS, identity-provider authentication, an external database, replicas, autoscaling, verification, and upgrades."
+description: "Deploy the API Portal & MCP Hub in production on Kubernetes with the api-portal Helm chart: secrets, TLS, identity provider, database, and scaling."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-on-kubernetes/
 md_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-on-kubernetes.md
 tags:

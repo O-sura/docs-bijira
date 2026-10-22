@@ -1,6 +1,6 @@
 ---
 title: "Deploy on OpenShift in Standalone Mode"
-description: "Install API Platform AI Gateway on Red Hat OpenShift with the gateway Helm chart, expose its LLM and MCP traffic through OpenShift Routes, and connect it to AI Workspace."
+description: "Install AI Gateway on Red Hat OpenShift with the gateway Helm chart, expose LLM and MCP traffic through OpenShift Routes, and connect it to AI Workspace."
 canonical_url: https://wso2.com/api-platform/docs/ai-gateway/1.2.0/setup-and-deployment/openshift/openshift-standalone/
 md_url: https://wso2.com/api-platform/docs/ai-gateway/1.2.0/setup-and-deployment/openshift/openshift-standalone.md
 tags:
@@ -59,8 +59,10 @@ openssl version
     === "Username and password"
 
         ```bash
-        oc login <API_SERVER_URL> -u <USERNAME> -p <PASSWORD>
+        oc login <API_SERVER_URL> -u <USERNAME>
         ```
+
+        `oc` prompts for the password, which keeps it out of your shell history and the process list.
 
     === "Token"
 

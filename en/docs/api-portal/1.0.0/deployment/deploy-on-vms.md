@@ -1,6 +1,6 @@
 ---
 title: "Deploy on VMs"
-description: "Deploy the API Portal & MCP Hub in production on virtual machines with the Compose distribution, end to end: secrets, TLS, identity-provider authentication, an external database, replicated instances behind a load balancer, verification, and upgrades."
+description: "Deploy the API Portal & MCP Hub in production on virtual machines with Docker Compose: secrets, TLS, identity provider, database, and load balancing."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-on-vms/
 md_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-on-vms.md
 tags:

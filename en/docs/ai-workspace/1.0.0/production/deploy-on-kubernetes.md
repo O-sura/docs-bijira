@@ -1,6 +1,6 @@
 ---
 title: "Deploy on Kubernetes"
-description: "Deploy AI Workspace in production on Kubernetes with the ai-workspace Helm chart, end to end: hostnames, database, identity provider, secrets, certificates, values, publishing, scaling, hardening, gateways, and operations."
+description: "Deploy AI Workspace in production on Kubernetes with the ai-workspace Helm chart: database, identity provider, secrets, TLS, scaling, and gateways."
 canonical_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/deploy-on-kubernetes/
 md_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/deploy-on-kubernetes.md
 tags:

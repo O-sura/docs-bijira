@@ -1,6 +1,6 @@
 ---
 title: "Resources & Scaling"
-description: "How to size and scale a replicated API Portal & MCP Hub deployment on any platform: instance count, resources, spreading across failure domains, and health checks."
+description: "Size and scale a replicated API Portal & MCP Hub deployment on any platform: instance count, resources, spreading across failure domains, and health checks."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/resources-and-scaling/
 md_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/resources-and-scaling.md
 tags:

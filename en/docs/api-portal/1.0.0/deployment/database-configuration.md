@@ -1,6 +1,6 @@
 ---
 title: "Database Configuration"
-description: "Provision the database for a production API Portal & MCP Hub deployment on any platform: the database and schema, the password, TLS verification, and connection-pool sizing across replicas."
+description: "Set up the database for a production API Portal & MCP Hub deployment on any platform: schema, password, TLS verification, and connection-pool sizing."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/database-configuration/
 md_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/database-configuration.md
 tags:

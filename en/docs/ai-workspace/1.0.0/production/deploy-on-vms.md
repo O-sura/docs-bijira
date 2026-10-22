@@ -1,6 +1,6 @@
 ---
 title: "Deploy on VMs"
-description: "Deploy AI Workspace in production as a Docker Compose stack on one or more virtual machines, end to end: hostnames, database, identity provider, secrets, certificates, configuration, publishing, scaling, hardening, gateways, and operations."
+description: "Deploy AI Workspace in production as a Docker Compose stack on virtual machines: database, identity provider, secrets, TLS, scaling, and gateways."
 canonical_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/deploy-on-vms/
 md_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/deploy-on-vms.md
 tags:

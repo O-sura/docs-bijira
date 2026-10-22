@@ -1,6 +1,6 @@
 ---
 title: "Production deployment overview"
-description: "Plan a production AI Workspace deployment: what you deploy, how a virtual machine install differs from Kubernetes and OpenShift, and the decisions to make before you install."
+description: "Plan a production AI Workspace deployment: what you deploy, how VM, Kubernetes, and OpenShift installs differ, and the decisions to make before you install."
 canonical_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/overview/
 md_url: https://wso2.com/api-platform/docs/ai-workspace/1.0.0/production/overview.md
 tags:

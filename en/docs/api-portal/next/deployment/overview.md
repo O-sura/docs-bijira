@@ -1,6 +1,6 @@
 ---
 title: "Production deployment"
-description: "Deploy the API Portal & MCP Hub in production on virtual machines, Kubernetes, or OpenShift, with an external database and, where you need it, replicated instances."
+description: "Deploy the API Portal & MCP Hub in production on VMs, Kubernetes, or OpenShift, with an external database and, where you need it, replicated instances."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/next/deployment/overview/
 md_url: https://wso2.com/api-platform/docs/api-portal/next/deployment/overview.md
 tags:

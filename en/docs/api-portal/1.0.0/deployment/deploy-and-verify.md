@@ -1,6 +1,6 @@
 ---
 title: "Verify & Upgrade"
-description: "Confirm a production API Portal & MCP Hub deployment is serving, with sessions shared and events dispatched once, and what holds on every platform when you upgrade."
+description: "Confirm a production API Portal & MCP Hub deployment is serving, shares sessions, and dispatches each event once, and what to check when you upgrade."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-and-verify/
 md_url: https://wso2.com/api-platform/docs/api-portal/1.0.0/deployment/deploy-and-verify.md
 tags:

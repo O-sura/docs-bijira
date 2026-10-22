@@ -59,8 +59,10 @@ openssl version
     === "Username and password"
 
         ```bash
-        oc login <API_SERVER_URL> -u <USERNAME> -p <PASSWORD>
+        oc login <API_SERVER_URL> -u <USERNAME>
         ```
+
+        `oc` prompts for the password, which keeps it out of your shell history and the process list.
 
     === "Token"
 

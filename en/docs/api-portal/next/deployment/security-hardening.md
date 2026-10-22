@@ -1,6 +1,6 @@
 ---
 title: "Security Hardening"
-description: "What hardening an API Portal & MCP Hub production deployment involves, on any platform: shared secrets, TLS certificates, identity-provider authentication, scope authorization, and the try-it proxy and upload ceilings."
+description: "Harden a production API Portal & MCP Hub deployment on any platform: secrets, TLS, identity-provider login, scopes, and try-it proxy and upload limits."
 canonical_url: https://wso2.com/api-platform/docs/api-portal/next/deployment/security-hardening/
 md_url: https://wso2.com/api-platform/docs/api-portal/next/deployment/security-hardening.md
 tags:
