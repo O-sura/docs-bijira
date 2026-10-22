@@ -152,8 +152,8 @@ The gateway controller encrypts sensitive data at rest with an AES-256 key. The 
     openssl rand 32 > default-aesgcm256-v1.bin
     oc create secret generic gateway-encryption-keys \
       --from-file=default-aesgcm256-v1.bin=default-aesgcm256-v1.bin \
-      -n <PROJECT-NAME>
-    rm default-aesgcm256-v1.bin
+      -n <PROJECT-NAME> && \
+      rm default-aesgcm256-v1.bin   # remove the plaintext key only after the Secret is created
     ```
 
 2. Verify that the Secret exists:

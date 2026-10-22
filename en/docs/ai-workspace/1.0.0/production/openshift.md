@@ -951,8 +951,8 @@ Create the at-rest encryption key Secret first. At-rest encryption is mandatory,
 umask 077
 openssl rand 32 > default-aesgcm256-v1.bin
 oc -n <gateway-namespace> create secret generic gateway-encryption-keys \
-  --from-file=default-aesgcm256-v1.bin=default-aesgcm256-v1.bin
-shred -u default-aesgcm256-v1.bin
+  --from-file=default-aesgcm256-v1.bin=default-aesgcm256-v1.bin && \
+  shred -u default-aesgcm256-v1.bin   # remove the plaintext key only after the Secret is created
 ```
 
 Put the registration token in its own Secret. Read it into a protected file rather than passing it with `--set` or `--from-literal`. Either of those records the token in your shell history and in the host's process list:

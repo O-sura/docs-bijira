@@ -197,8 +197,8 @@ This guide puts the gateway settings in a ConfigMap. To apply a setting to every
     openssl rand 32 > default-aesgcm256-v1.bin
     oc create secret generic gateway-encryption-keys \
       --from-file=default-aesgcm256-v1.bin=default-aesgcm256-v1.bin \
-      -n <PROJECT-NAME>
-    rm default-aesgcm256-v1.bin
+      -n <PROJECT-NAME> && \
+      rm default-aesgcm256-v1.bin   # remove the plaintext key only after the Secret is created
     ```
 
 2. Create an `openshift-gateway-values.yaml` file with a ConfigMap that holds the gateway values:
