@@ -50,6 +50,9 @@ api-portal-ui:
 
 The examples in this guide add to a values file named `values-production.yaml`.
 
+!!! note "The public `1.0.0` image serves the portal without `/api-portal`"
+    This guide's URLs and routing use the portal's `/api-portal` path, which the update-level images, such as 1.0.0.7, serve. Update levels are available with a WSO2 subscription. The public `1.0.0` image, the chart's default, serves the portal at the root path instead. If you run that image, drop `/api-portal` from the callback and logout URLs in [Step 3](#configure-authentication) and from your routing in [Step 8](#front-the-portal).
+
 ## Step 1: Provision the secrets { #provision-the-secrets }
 
 The chart never creates or embeds secret values, and it refuses to render without them, so this comes first. Provision them with the bundled `generate-secrets.sh`:
@@ -148,6 +151,8 @@ api-portal-ui:
       user: api_portal
       sslmode: verify-full       # disable | verify-full
       sslRootCert: /etc/api-portal/db-ca/ca.pem
+  persistence:
+    enabled: false               # the database holds the data now
   deployment:
     # Mounts the database CA that sslRootCert names
     extraVolumes:
@@ -161,6 +166,8 @@ api-portal-ui:
 ```
 
 Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
+
+`persistence.enabled: false` removes the portal's SQLite volume, which an external database replaces. Leave it on and every replica mounts the same `ReadWriteOnce` claim, so a second replica on another node can't start.
 
 `sslRootCert` names the CA that signed your database server's certificate. The chart doesn't mount that file, so the values above mount it from a ConfigMap. Create the ConfigMap before you deploy:
 

@@ -304,7 +304,23 @@ api-portal-ui:
         scope: "openid profile email"
 ```
 
-The chart renders `auth.mode=idp` once `idp.clientId` is set; the client secret comes from the Secret. `generate-secrets.sh` provisions it and sets `secrets.hasIdpClientSecret` in the values file it writes.
+The chart renders `auth.mode=idp` once `idp.clientId` is set. The client secret comes from the portal's Secret, under the key `APIP_AP_AUTH_IDP_CLIENT_SECRET`, and the chart passes it to the portal only when `secrets.hasIdpClientSecret` is `true`. `generate-secrets.sh` writes that key only when it creates the Secret, and the Secret already exists from [Step 5](#step-5), so add the key to it. Read the client secret into a file only you can read, so it stays out of your shell history and the process list:
+
+```bash
+umask 077
+read -rsp 'IdP client secret: ' v && printf '%s' "$v" > idp_client_secret && unset v && echo
+oc -n <PROJECT-NAME> set data secret/api-portal-api-portal-ui-secrets \
+  --from-file=APIP_AP_AUTH_IDP_CLIENT_SECRET=idp_client_secret && \
+  shred -u idp_client_secret
+```
+
+Then turn the flag on in your `my_values.yaml` file:
+
+```yaml
+api-portal-ui:
+  secrets:
+    hasIdpClientSecret: true
+```
 
 Both the callback and logout redirect URLs must sit under the portal's `/api-portal` mount and match what you registered in the identity provider. Use the portal's Route host, the same host as in `baseUrl`. See [Security Hardening → Authentication](security-hardening.md#authentication).
 
@@ -338,6 +354,8 @@ api-portal-ui:
       user: api_portal
       sslmode: verify-full       # disable | verify-full
       sslRootCert: /etc/api-portal/db-ca/ca.pem
+  persistence:
+    enabled: false               # the database holds the data now
   deployment:
     # Mounts the database CA that sslRootCert names
     extraVolumes:
@@ -351,6 +369,8 @@ api-portal-ui:
 ```
 
 Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
+
+`persistence.enabled: false` removes the portal's SQLite volume, which an external database replaces. Leave it on and every replica mounts the same `ReadWriteOnce` claim, so a second replica on another node can't start.
 
 `sslRootCert` names the CA that signed your database server's certificate. The chart doesn't mount that file, so the values above mount it from a ConfigMap. Create the ConfigMap before you apply this configuration:
 
@@ -653,6 +673,8 @@ The portal calls the Platform API inside the cluster at `https://api-portal-plat
             readOnly: true
     ```
 
+    The Platform API's Route, which the chart creates by default, passes TLS through, so clients that reach the Platform API from outside the cluster get this certificate too. If they need to, add the Route's host to `dnsNames` and give those clients the CA. Otherwise, turn the Route off with `platform-api.openshift.routes.platformApi.enabled: false`.
+
     `extraVolumes` and `extraVolumeMounts` are lists, and Helm replaces a list instead of merging it. If you also mount the database CA, as described in [Configure the database](#configure-the-database), put both volumes in one `extraVolumes` list and both mounts in one `extraVolumeMounts` list.
 
 4. Apply the values with the same `helm upgrade --install` command as in [Step 6](#step-6), then restart the Platform API. It reads its certificate only at startup, so it keeps serving the previous one until it restarts:
@@ -784,6 +806,7 @@ Choose a TLS termination type:
               issuerRef:
                 name: <ISSUER_NAME>
                 kind: ClusterIssuer
+              commonName: portal.example.com
               dnsNames:
                 - portal.example.com
         ```

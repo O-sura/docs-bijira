@@ -228,7 +228,7 @@ This guide puts the gateway settings in a ConfigMap. To apply a setting to every
               type: ClusterIP
     ```
 
-    The gateway images come from the gateway chart version in the operator's `gateway.helm.chartVersion`. Chart 1.2.4 defaults to the public `1.2.0` images, so set the update-level images in the ConfigMap, as the following note shows.
+    The operator's default gateway values, and gateway chart 1.2.4, use the public `1.2.0` images, so set the update-level images in the ConfigMap, as the following note shows.
 
     !!! note "Use update level 1.2.0.19 or later"
         Create the registry pull Secret in the gateway's project, as described in [WSO2 Subscription Users](../../high-availability-production-deployment.md#wso2-subscription-users). Then add the following to `values.yaml` in the ConfigMap. Setting `wso2.subscription.imagePullSecret` makes the chart pull from `registry.wso2.com/wso2-api-platform/`, but it keeps the default `1.2.0` tags, so set the update-level tags too:
@@ -564,8 +564,10 @@ If OpenShift can't update a CRD because a stored version was removed, and no res
 **Symptom:** The `APIGateway`'s `Programmed` condition is `False` with the reason `DeploymentFailed`. Its message contains an error such as the following. The verb is `create` instead of `get` when the Route doesn't exist yet.
 
 ```
-routes.route.openshift.io "<APIGATEWAY-NAME>-gw-management-api" is forbidden: User "system:serviceaccount:<PROJECT-NAME>:controller-manager" cannot get resource "routes" in API group "route.openshift.io"
+routes.route.openshift.io "openshift-gateway-gw-management-api" is forbidden: User "system:serviceaccount:<PROJECT-NAME>:controller-manager" cannot get resource "routes" in API group "route.openshift.io"
 ```
+
+The Route is named after the gateway's Helm release, `<APIGATEWAY-NAME>-gw`. When the `APIGateway` name contains `gateway`, as `openshift-gateway` in this guide does, the name is the release name followed by `-management-api`. For other names, the gateway chart adds `-gateway` first, for example `prod-gw-gateway-management-api` for an `APIGateway` named `prod`.
 
 **Cause:** The gateway values turn on the management API Route, through `openshift.enabled: true` and `openshift.routes.managementApi.enabled: true` in `gateway.values` or in a gateway's ConfigMap. However, you installed the operator without OpenShift support, so the operator isn't allowed to manage Routes.
 

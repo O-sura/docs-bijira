@@ -253,14 +253,20 @@ platform-api:
 
 ### Make the BFF verify the Platform API { #tls-step-3-make-the-bff-verify-the-platform-api }
 
-The BFF calls the Platform API inside the cluster and verifies its certificate. When that certificate comes from a private CA, mount the CA bundle and name it in the component config:
+The BFF calls the Platform API inside the cluster, at `https://<release-name>-platform-api:9243`, and verifies its certificate, so that certificate must cover the Service name. Public CAs don't issue certificates for in-cluster names, so issue it from a private CA, as the values in Step 6 do. Put that CA's certificate in a ConfigMap:
+
+```bash
+kubectl -n <namespace> create configmap internal-ca --from-file=ca.pem=<path-to-private-ca.pem>
+```
+
+Then mount the ConfigMap and name the CA in the component config:
 
 ```yaml
 ai-workspace-ui:
   config:
     controlPlane:
       tlsSkipVerify: false
-      caFile: /etc/ai-workspace/tls/ca.pem
+      caFile: /etc/ai-workspace/ca/ca.pem
   deployment:
     extraVolumes:
       - name: control-plane-ca
@@ -268,10 +274,11 @@ ai-workspace-ui:
           name: internal-ca
     extraVolumeMounts:
       - name: control-plane-ca
-        mountPath: /etc/ai-workspace/tls/ca.pem
-        subPath: ca.pem
+        mountPath: /etc/ai-workspace/ca
         readOnly: true
 ```
+
+Mount the CA in its own directory. `/etc/ai-workspace/tls` already holds the workspace's own certificate, mounted read-only.
 
 Leave `config.controlPlane.url` empty to derive the in-cluster Service URL from `global.platformApi`. Set it only when the Platform API runs outside this release.
 
@@ -334,11 +341,12 @@ platform-api:
       create: true
       createIssuer: false
       issuerRef:
-        name: letsencrypt-production
+        name: internal-ca           # a private-CA ClusterIssuer, see Step 5
         kind: ClusterIssuer
-      commonName: platform-api.example.com
+      commonName: <release-name>-platform-api
       dnsNames:
-        - platform-api.example.com
+        - <release-name>-platform-api
+        - <release-name>-platform-api.<namespace>.svc
   persistence:
     enabled: false          # the database server holds the data now
   deployment:
@@ -396,6 +404,7 @@ ai-workspace-ui:
 A few notes on that file:
 
 - `domain`, the redirect URLs, and `controlplaneHost` use the public hostnames that your Ingresses serve in [Step 8](#expose). The redirect URLs must match the ones you registered on the identity provider application in [Step 3](#step-3-register-ai-workspace-with-your-identity-provider), character for character.
+- The Platform API's own certificate is seen only inside the cluster. The BFF calls `<release-name>-platform-api`, and gateways reach the Platform API through the Ingress in [Step 8](#expose-step-2-expose-the-control-plane-for-gateways), which serves its own certificate. So the values issue it from a private-CA `ClusterIssuer` for the Service names, and the BFF trusts that CA, as in [Step 5](#tls-step-3-make-the-bff-verify-the-platform-api).
 - The connection keys sit under `config.database.postgres` whatever driver you set, so use that same block for SQL Server.
 - `sslRootCert` names the CA that signed your database server's certificate, not the CA of the Platform API's own certificate. The chart doesn't mount that file, so `platform-api.deployment` mounts it from a ConfigMap. Create the ConfigMap before you install:
 

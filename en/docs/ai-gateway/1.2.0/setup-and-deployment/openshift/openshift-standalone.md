@@ -10,7 +10,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -355,7 +355,7 @@ A healthy pod isn't proof that LLM traffic works. Deploy one provider and one pr
         auth:
           type: api-key
           header: Authorization
-          value: ${OPENAI_API_KEY}
+          value: Bearer ${OPENAI_API_KEY}
       accessControl:
         mode: deny_all
         exceptions:
@@ -415,6 +415,37 @@ A healthy pod isn't proof that LLM traffic works. Deploy one provider and one pr
     Chunks should arrive progressively. Through an `edge` or `reencrypt` Route, a stream cut off after about 30 seconds means the Route's timeout is still at the router default. See [Raise the Route timeouts for streaming responses](#route-timeouts).
 
 For the full verification, including identity-provider tokens instead of basic auth, see [Deploy and verify](../production-deployment/deploy-and-verify.md#verify-with-real-ai-traffic).
+
+## Upgrade and uninstall { #upgrade-and-uninstall }
+
+Upgrade with the same values file you installed with:
+
+```bash
+helm upgrade gateway oci://ghcr.io/wso2/api-platform/helm-charts/gateway \
+  --version 1.2.4 \
+  --namespace <PROJECT-NAME> \
+  -f values.yaml
+```
+
+Pass your values file on every upgrade. Don't upgrade from gateway chart 1.2.3 or earlier with `--reuse-values`: Helm then keeps that version's defaults, which have no `openshift` values, and the upgrade fails with `nil pointer evaluating interface {}.routes` without changing the release. To carry the previous release's values forward instead, use `--reset-then-reuse-values` (Helm 3.14 or later).
+
+To remove the gateway, run the following command:
+
+```bash
+helm uninstall gateway --namespace <PROJECT-NAME>
+```
+
+`helm uninstall` also deletes the `gateway-controller-data` PVC, which holds the gateway controller's database. To keep it, add the following to `values.yaml` and run the upgrade command above before you uninstall:
+
+```yaml
+gateway:
+  controller:
+    persistence:
+      annotations:
+        helm.sh/resource-policy: keep
+```
+
+The encryption key Secret from [Step 5](#step-5) isn't part of the release, so it stays. Keep it as long as you keep the PVC, because the stored data is encrypted with it.
 
 ## Advanced configuration
 
@@ -590,10 +621,10 @@ Use `passthrough` or `reencrypt` with the `https` port, and `edge` with the `htt
 For a hostname outside the cluster's apps domain, create a DNS record that points it at the cluster's router.
 
 !!! note "Route timeouts"
-    On `edge` and `reencrypt` Routes, the OpenShift router closes a connection when the gateway sends nothing for 30 seconds, by default. For long-running requests, such as streaming LLM responses, raise the timeout on those Routes. `passthrough` Routes use the router's tunnel timeout, one hour by default, so they don't need it:
+    On `edge` and `reencrypt` Routes, the OpenShift router closes a connection when the gateway sends nothing for 30 seconds, by default. For long-running requests, such as streaming LLM responses, raise the timeout on those Routes, as described in [Raise the Route timeouts for streaming responses](#route-timeouts). `passthrough` Routes use the router's tunnel timeout, one hour by default, so they don't need it:
 
     ```bash
-    oc annotate route <ROUTE-NAME> haproxy.router.openshift.io/timeout=120s -n <PROJECT-NAME>
+    oc annotate route <ROUTE-NAME> haproxy.router.openshift.io/timeout=10m -n <PROJECT-NAME>
     ```
 
 #### Sandbox traffic { #sandbox-traffic }

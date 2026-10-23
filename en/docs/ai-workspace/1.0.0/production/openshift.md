@@ -463,14 +463,20 @@ Neither chart accepts a self-signed provider. Rendering fails rather than starti
 
 #### Make the BFF verify the Platform API { #openshift-tls-step-3-make-the-bff-verify-the-platform-api }
 
-The BFF calls the Platform API inside the cluster and verifies its certificate. When that certificate comes from a private CA, mount the CA bundle and name it in the component config:
+The BFF calls the Platform API inside the cluster, at `https://ai-workspace-platform-api:9243`, and verifies its certificate, so that certificate must cover the Service name. Public CAs don't issue certificates for in-cluster names, so issue it from a private CA, as the values in Step 6 do. Put that CA's certificate in a ConfigMap:
+
+```bash
+oc -n <PROJECT-NAME> create configmap internal-ca --from-file=ca.pem=<path-to-private-ca.pem>
+```
+
+Then mount the ConfigMap and name the CA in the component config:
 
 ```yaml
 ai-workspace-ui:
   config:
     controlPlane:
       tlsSkipVerify: false
-      caFile: /etc/ai-workspace/tls/ca.pem
+      caFile: /etc/ai-workspace/ca/ca.pem
   deployment:
     extraVolumes:
       - name: control-plane-ca
@@ -478,10 +484,11 @@ ai-workspace-ui:
           name: internal-ca
     extraVolumeMounts:
       - name: control-plane-ca
-        mountPath: /etc/ai-workspace/tls/ca.pem
-        subPath: ca.pem
+        mountPath: /etc/ai-workspace/ca
         readOnly: true
 ```
+
+Mount the CA in its own directory. `/etc/ai-workspace/tls` already holds the workspace's own certificate, mounted read-only.
 
 Leave `config.controlPlane.url` empty to derive the in-cluster Service URL from `global.platformApi`. Set it only when the Platform API runs outside this release.
 
@@ -549,11 +556,12 @@ platform-api:
       create: true
       createIssuer: false
       issuerRef:
-        name: letsencrypt-production
+        name: <ISSUER_NAME>         # a CA that the BFF and your gateways trust
         kind: ClusterIssuer
       commonName: platform-api.example.com
       dnsNames:
         - platform-api.example.com
+        - ai-workspace-platform-api
   persistence:
     enabled: false          # the database server holds the data now
   deployment:
@@ -616,6 +624,7 @@ ai-workspace-ui:
 A few notes on that file:
 
 - The Routes publish AI Workspace and the Platform API on the hostnames you set, so you don't need an Ingress. Use the same hostnames in `domain`, the redirect URLs, and `controlplaneHost`, and create DNS records that point them at the cluster's router.
+- The Platform API's Route passes TLS through, so one certificate serves both the BFF, which calls the Service name `ai-workspace-platform-api`, and the gateways, which call `platform-api.example.com`. The values list both names. A public CA can't issue for the Service name, so use a CA that the BFF and your gateways both trust, as in [Step 5](#openshift-tls-step-3-make-the-bff-verify-the-platform-api). To give gateways a publicly trusted certificate instead, switch the Platform API's Route to `reencrypt`, as described in [Route configuration](#routes).
 - The connection keys sit under `config.database.postgres` whatever driver you set, so use that same block for SQL Server.
 - `sslRootCert` names the CA that signed your database server's certificate, not the CA of the Platform API's own certificate. The chart doesn't mount that file, so `platform-api.deployment` mounts it from a ConfigMap. Create the ConfigMap before you install:
 
@@ -639,6 +648,34 @@ A few notes on that file:
     ```
 
 Commit `my_values.yaml` and `values-secrets.yaml`. Neither holds a secret value.
+
+#### Apply the configuration { #production-apply }
+
+Preview what will change, then apply it:
+
+```bash
+helm template ai-workspace ./ai-workspace -n <PROJECT-NAME> \
+  -f values-secrets.yaml -f my_values.yaml > /tmp/preview.yaml
+
+helm upgrade --install ai-workspace ./ai-workspace -n <PROJECT-NAME> \
+  -f values-secrets.yaml -f my_values.yaml \
+  --wait --timeout 10m
+```
+
+**Before you continue:** both services must be running and healthy. They fail closed, so a startup message naming a config key or a file path tells you exactly which value didn't resolve. For a file path, confirm three things: the file is mounted at that path, the path sits inside an allowed source directory, and the service account can read it.
+
+```bash
+oc -n <PROJECT-NAME> get pods
+oc -n <PROJECT-NAME> logs deploy/ai-workspace-platform-api | grep -i -E 'error|fail'
+```
+
+#### Sign in { #production-sign-in }
+
+Open `https://workspace.example.com/ai-workspace`, the AI Workspace Route's host, and sign in through your identity provider. This is the first end-to-end test, and it exercises the certificate, the Route, the identity provider registration, and the BFF's connection to the Platform API at once.
+
+Then confirm authorization works, not just authentication. Sign in as a user with a read-only role and check that management actions are unavailable. Login succeeding while every action returns `403` means the token carries no `ap:*` privileges, or the two services disagree on the authorization mode.
+
+**Before you continue:** one administrator and one read-only user can both sign in, and each sees what their role allows.
 
 ### Step 7: Run in high availability { #openshift-ha }
 

@@ -228,7 +228,7 @@ This guide puts the gateway settings in a ConfigMap. To apply a setting to every
               type: ClusterIP
     ```
 
-    The gateway images come from the gateway chart version in the operator's `gateway.helm.chartVersion`. Chart 1.2.4 defaults to the public `1.2.0` images, so set the update-level images in the ConfigMap, as the following note shows.
+    The operator's default gateway values, and gateway chart 1.2.4, use the public `1.2.0` images, so set the update-level images in the ConfigMap, as the following note shows.
 
     !!! note "Use update level 1.2.0.19 or later"
         Create the registry pull Secret in the gateway's project, as described in [WSO2 Subscription Users](../../../../api-gateway/1.2.0/deployment/high-availability-production-deployment.md#wso2-subscription-users). Then add the following to `values.yaml` in the ConfigMap. Setting `wso2.subscription.imagePullSecret` makes the chart pull from `registry.wso2.com/wso2-api-platform/`, but it keeps the default `1.2.0` tags, so set the update-level tags too:
@@ -391,6 +391,83 @@ To reach the sandbox environment of an API, serve APIs on their own hostnames, o
     ```
 
     The response is the upstream's echo of the request, with `"url": "https://httpbin.org/anything/info"`.
+
+5. Check LLM traffic too. Store the provider's API key in a Secret. The gateway sends the Secret's value as the `Authorization` header unchanged, so include the `Bearer ` prefix. Reading the key into a file only you can read keeps it out of your shell history and the process list:
+
+    ```bash
+    umask 077
+    read -rsp "OpenAI API key: " v && printf 'Bearer %s' "$v" > openai_auth && unset v && echo
+    oc -n <PROJECT-NAME> create secret generic openai-api-key \
+      --from-file=authorization=openai_auth && \
+      shred -u openai_auth
+    ```
+
+6. Create an `llm.yaml` file with an `LlmProvider` that reads the key from the Secret, and an `LlmProxy` that consumes the provider:
+
+    ```yaml
+    apiVersion: gateway.api-platform.wso2.com/v1
+    kind: LlmProvider
+    metadata:
+      name: openai-provider
+      namespace: <PROJECT-NAME>
+    spec:
+      displayName: OpenAI Provider
+      version: v1.0
+      template: openai
+      context: /openai/latest
+      upstream:
+        url: https://api.openai.com/v1
+        auth:
+          type: api-key
+          header: Authorization
+          value:
+            valueFrom:
+              name: openai-api-key
+              key: authorization
+      accessControl:
+        mode: deny_all
+        exceptions:
+          - path: /chat/completions
+            methods: [POST]
+    ---
+    apiVersion: gateway.api-platform.wso2.com/v1
+    kind: LlmProxy
+    metadata:
+      name: openai-assistant
+      namespace: <PROJECT-NAME>
+    spec:
+      displayName: OpenAI Assistant
+      version: v1.0
+      context: /assistant
+      provider:
+        id: openai-provider
+    ```
+
+    `provider.id` is the `LlmProvider`'s name.
+
+7. Apply the file, and wait until both resources are programmed:
+
+    ```bash
+    oc apply -f llm.yaml
+    oc get llmprovider openai-provider -n <PROJECT-NAME> \
+      -o jsonpath='{range .status.conditions[*]}{.type}={.status}{"\n"}{end}'
+    oc get llmproxy openai-assistant -n <PROJECT-NAME> \
+      -o jsonpath='{range .status.conditions[*]}{.type}={.status}{"\n"}{end}'
+    ```
+
+8. Send a streaming request through the Route. Streaming is what exposes timeout misconfiguration between the router, the gateway, and the provider:
+
+    ```bash
+    curl -k -N -X POST "https://$GATEWAY_HOST/assistant/chat/completions" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "gpt-4o-mini",
+        "stream": true,
+        "messages": [{"role": "user", "content": "Write a short paragraph about APIs."}]
+      }'
+    ```
+
+    Chunks should arrive progressively. Through an `edge` or `reencrypt` Route, a stream cut off after about 30 seconds means the Route's timeout is still at the router default. See [Raise the Route timeouts for streaming responses](openshift-standalone.md#route-timeouts).
 
 ## Advanced configuration
 
@@ -564,8 +641,10 @@ If OpenShift can't update a CRD because a stored version was removed, and no res
 **Symptom:** The `APIGateway`'s `Programmed` condition is `False` with the reason `DeploymentFailed`. Its message contains an error such as the following. The verb is `create` instead of `get` when the Route doesn't exist yet.
 
 ```
-routes.route.openshift.io "<APIGATEWAY-NAME>-gw-management-api" is forbidden: User "system:serviceaccount:<PROJECT-NAME>:controller-manager" cannot get resource "routes" in API group "route.openshift.io"
+routes.route.openshift.io "openshift-gateway-gw-management-api" is forbidden: User "system:serviceaccount:<PROJECT-NAME>:controller-manager" cannot get resource "routes" in API group "route.openshift.io"
 ```
+
+The Route is named after the gateway's Helm release, `<APIGATEWAY-NAME>-gw`. When the `APIGateway` name contains `gateway`, as `openshift-gateway` in this guide does, the name is the release name followed by `-management-api`. For other names, the gateway chart adds `-gateway` first, for example `prod-gw-gateway-management-api` for an `APIGateway` named `prod`.
 
 **Cause:** The gateway values turn on the management API Route, through `openshift.enabled: true` and `openshift.routes.managementApi.enabled: true` in `gateway.values` or in a gateway's ConfigMap. However, you installed the operator without OpenShift support, so the operator isn't allowed to manage Routes.
 
