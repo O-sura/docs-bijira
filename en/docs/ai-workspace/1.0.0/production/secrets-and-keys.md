@@ -35,13 +35,13 @@ The following table maps each secret to the service that consumes it, when it's 
 
 The encryption key is a single 32-byte value supplied as 64 hexadecimal characters or as base64.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#secrets-step-1-generate-the-values) and [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-step-1-generate-the-values).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#secrets-step-1-generate-the-values), [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-step-1-generate-the-values), and [Deploy on OpenShift](openshift.md#openshift-secrets-step-1-generate-the-values).
 
 ## Step 2: Reference the secrets from configuration
 
 Never write a secret value into `config.toml` or a values file. Reference it instead, so the value stays in the store you chose.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#secrets-step-2-reference-the-secrets-from-configuration) and [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-step-2-reference-the-secrets-from-configuration).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#secrets-step-2-reference-the-secrets-from-configuration), [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-step-2-reference-the-secrets-from-configuration), and [Deploy on OpenShift](openshift.md#openshift-secrets-step-2-reference-the-secrets-from-configuration).
 
 Resolution fails closed in both deployment shapes. A missing file, a file outside the allowed directories, or an unset variable with no default stops startup rather than running with an empty credential.
 
@@ -71,7 +71,7 @@ Resolution fails closed in both deployment shapes. A missing file, a file outsid
 
 Start the stack and confirm no service reports a missing requirement.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-7-start-the-deployment) and [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-verify).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-7-start-the-deployment), [Deploy on Kubernetes](deploy-on-kubernetes.md#secrets-verify), and [Deploy on OpenShift](openshift.md#openshift-secrets-verify).
 
 ## Related
 

@@ -54,7 +54,7 @@ Both shapes run the same container images and read the same configuration keys. 
 | **Scaling** | Several hosts behind a load balancer, all pointing at one database server | Replica counts and a PodDisruptionBudget, backed by a shared database server |
 | **You operate** | The host, the container runtime, the reverse proxy, certificate renewal, and backups | The cluster, an ingress controller, cert-manager or your own certificate secrets, and backups |
 
-For the details of each shape, including splitting the services across hosts on virtual machines, see [Deploy on VMs](deploy-on-vms.md#about-the-deployment) and [Deploy on Kubernetes](deploy-on-kubernetes.md#about-the-deployment). On Red Hat OpenShift, see [Deploy on OpenShift](openshift.md).
+For the details of each shape, including splitting the services across hosts on virtual machines, see [Deploy on VMs](deploy-on-vms.md#about-the-deployment) and [Deploy on Kubernetes](deploy-on-kubernetes.md#about-the-deployment). Red Hat OpenShift uses the Kubernetes shape, with OpenShift Routes in place of an Ingress. See [Deploy on OpenShift](openshift.md).
 
 ## Ports and traffic paths
 
@@ -112,7 +112,7 @@ Answering these up front avoids reinstalling. Each answer feeds a later page.
 
 The API Portal is a separate product that shares this same Platform API control plane. It gives your API consumers a place to discover APIs and MCP servers, create applications, and manage subscriptions and API keys. It's off by default, and you can add it after AI Workspace is running without reinstalling anything.
 
-On virtual machines, the distribution ships it as a Compose profile named `api-portal`. On Kubernetes, it ships as its own product chart, installed as a separate Helm release. For the steps, see [Deploy on VMs](deploy-on-vms.md#optional-add-the-api-portal) and [Deploy on Kubernetes](deploy-on-kubernetes.md#optional-add-the-api-portal).
+On virtual machines, the distribution ships it as a Compose profile named `api-portal`. On Kubernetes, it ships as its own product chart, installed as a separate Helm release. For the steps, see [Deploy on VMs](deploy-on-vms.md#optional-add-the-api-portal) and [Deploy on Kubernetes](deploy-on-kubernetes.md#optional-add-the-api-portal). On OpenShift, see [Deploy the API Portal on OpenShift](../../../api-portal/1.0.0/deployment/openshift.md), which covers turning off its bundled Platform API.
 
 Everything else about running the API Portal in production, including its database, its identity provider setup, and its configuration reference, is documented with the product itself. See the [API Portal overview](../../../api-portal/1.0.0/overview.md) and its [Setting Up](../../../api-portal/1.0.0/setting-up/database.md) section. The rest of this section covers AI Workspace only.
 

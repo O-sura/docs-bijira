@@ -43,7 +43,7 @@ The application bundle sets the prefix at image build time, so it isn't configur
 
 ## Step 1: Publish the workspace URL
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-1-publish-the-workspace-url) and [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-1-publish-the-workspace-url).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-1-publish-the-workspace-url), [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-1-publish-the-workspace-url), and [Deploy on OpenShift](openshift.md#routes).
 
 ## Step 2: Expose the control plane for gateways
 
@@ -55,7 +55,7 @@ Match the exposure to where your gateways run:
 - **Gateways elsewhere in your network:** an internal load balancer, or a private DNS name resolving to the host.
 - **Gateways outside your network:** a public address restricted by source range, with the registration token as the credential.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-2-expose-the-control-plane-for-gateways) and [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-2-expose-the-control-plane-for-gateways).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-2-expose-the-control-plane-for-gateways), [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-2-expose-the-control-plane-for-gateways), and [Deploy on OpenShift](openshift.md#routes).
 
 !!! note "Two keys that aren't interchangeable"
     `controlplane_host` is display-only. AI Workspace never connects to it. Instead, it substitutes the value into the setup commands it shows an administrator. A wrong value leaves the workspace working and breaks the gateway, which then can't register. The BFF's own hop uses `[ai_workspace.control_plane] url` instead. See [Two keys that aren't interchangeable](../setting-up/ports.md#two-keys-that-arent-interchangeable).
@@ -64,7 +64,7 @@ For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#exp
 
 In OIDC mode, both redirect URLs carry the public hostname and the path prefix. They must match what you registered on the identity provider application, character for character.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration) and [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration), [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration), and [Deploy on OpenShift](openshift.md#production-step-6).
 
 The callback is a BFF route, not a page in the application. Register `/ai-workspace/api/auth/callback` on the identity provider. Registering the sign-in page instead makes the code exchange fail. See [Connect an identity provider to AI Workspace](../setting-up/authentication/connect-an-identity-provider.md).
 
@@ -74,7 +74,7 @@ The Platform API's `allowed_origins` list is empty by default, which disables cr
 
 Set it only when a browser application other than AI Workspace calls the Platform API directly. List the exact origins.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration) and [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration), [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration), and [Deploy on OpenShift](openshift.md#production-step-6).
 
 A wildcard is rejected at startup, so the service can't run with credentialed cross-origin access open to every origin.
 

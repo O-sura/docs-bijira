@@ -10,7 +10,7 @@ tags:
   - kubernetes
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -167,7 +167,7 @@ For optional inputs, such as database passwords and the OpenID Connect (OIDC) cl
     **Platform API certificate**: the portal calls the Platform API inside the cluster at `https://api-portal-platform-api:9243` and verifies its certificate. The chart's default certificate is self-signed and issued for `platform-api.localhost`, so verification fails.
 
     - For an evaluation deployment, allow the certificate explicitly with the following values.
-    - For production, leave this setting unset. Issue the Platform API's certificate for the Service name from a publicly trusted certificate authority (CA). Add `api-portal-platform-api` to `platform-api.tls.certManager.dnsNames`, and set the CA in `platform-api.tls.certManager.issuerRef`.
+    - For production, leave this setting unset. Issue the Platform API's certificate for the Service name from a private certificate authority (CA) that the portal trusts, as described in [Trust the Platform API certificate](#trust-the-platform-api-certificate).
 
     ```yaml
     api-portal-ui:
@@ -337,23 +337,45 @@ api-portal-ui:
       database: api_portal       # the schema name — rendered into config as `name`
       user: api_portal
       sslmode: verify-full       # disable | verify-full
-      sslRootCert: /etc/api-portal/certs/ca.pem
+      sslRootCert: /etc/api-portal/db-ca/ca.pem
+  deployment:
+    # Mounts the database CA that sslRootCert names
+    extraVolumes:
+      - name: db-ca
+        configMap:
+          name: postgres-ca
+    extraVolumeMounts:
+      - name: db-ca
+        mountPath: /etc/api-portal/db-ca
+        readOnly: true
 ```
 
 Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
 
-Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
-
-The password never appears in a values file. It comes from the release's Secret, under the key `APIP_AP_DATABASE_PASSWORD`, which is also the name of the environment variable the container receives. `generate-secrets.sh` doesn't prompt for it. It reads the password from the `APIP_AP_DATABASE_PASSWORD` environment variable, and only when it first creates the portal's Secret. Read it without echoing it, then run the script:
+`sslRootCert` names the CA that signed your database server's certificate. The chart doesn't mount that file, so the values above mount it from a ConfigMap. Create the ConfigMap before you apply this configuration:
 
 ```bash
-read -rsp 'Database password: ' APIP_AP_DATABASE_PASSWORD && echo
-export APIP_AP_DATABASE_PASSWORD
-bash ./api-portal/generate-secrets.sh <PROJECT-NAME> api-portal
-unset APIP_AP_DATABASE_PASSWORD
+oc -n <PROJECT-NAME> create configmap postgres-ca --from-file=ca.pem=<path-to-database-ca.pem>
 ```
 
-If the Secret already exists, the script leaves it untouched. Add the key to the existing Secret instead, or delete the Secret and run the script again.
+Without the file, the portal stops at startup with `ENOENT: no such file or directory` and the path.
+
+Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
+
+The password never appears in a values file. It comes from the release's Secret, under the key `APIP_AP_DATABASE_PASSWORD`, which is also the name of the environment variable the container receives. `generate-secrets.sh` writes that key only when it creates the Secret, and the Secret already exists from [Step 5](#step-5), so add the key to it. If you exported `APIP_AP_DATABASE_PASSWORD` before running the script in Step 5, the key is already there and you can skip this.
+
+Read the password into a file only you can read, so it stays out of your shell history and the process list, then add it to the Secret:
+
+```bash
+umask 077
+read -rsp 'Database password: ' DB_PASSWORD && echo
+printf '%s' "$DB_PASSWORD" > db_password && unset DB_PASSWORD
+oc -n <PROJECT-NAME> set data secret/api-portal-api-portal-ui-secrets \
+  --from-file=APIP_AP_DATABASE_PASSWORD=db_password && \
+  shred -u db_password
+```
+
+`oc set data` adds the key and keeps the Secret's other keys. The portal reads it after the `helm upgrade` that switches `driver` off `sqlite`, which restarts its pods. If they stop in `CreateContainerConfigError` with a message about `APIP_AP_DATABASE_PASSWORD`, the key is missing from the Secret.
 
 Size the connection pool against your replica count, as described in [Database Configuration → Connection pool tuning](database-configuration.md#connection-pool-tuning):
 
@@ -548,6 +570,96 @@ api-portal-ui:
 `baseUrl` must use the in-cluster Service name and **container** port, because the portal connects over the cluster network rather than through a published port or Route. Pointing it at an externally published address makes every login fail while the Platform API itself looks healthy.
 
 `generate-secrets.sh` copies the public key out of the Platform API's own Secret, so the two stay on the same keypair. Set `hasPublicKey: false` when you have no local-auth path at all. See [Control Plane Connection → Local authentication](control-plane-connection.md#local-authentication-development-only).
+
+#### Trust the Platform API certificate { #trust-the-platform-api-certificate }
+
+The portal calls the Platform API inside the cluster at `https://api-portal-platform-api:9243` and verifies its certificate. The chart's default certificate is self-signed and issued for `platform-api.localhost`, so with `insecure: false` every login fails. Public certificate authorities (CAs) don't issue certificates for an in-cluster Service name, so issue this one from a private CA and make the portal trust that CA:
+
+1. Create the private CA with cert-manager. A self-signed issuer signs the CA certificate, and the `internal-ca` issuer then signs certificates with it. To use a private CA you already run, skip this step and reference its issuer in step 3.
+
+    ```yaml
+    # internal-ca.yaml
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned-root
+    spec:
+      selfSigned: {}
+    ---
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: internal-ca
+    spec:
+      isCA: true
+      commonName: internal-ca
+      secretName: internal-ca
+      privateKey:
+        algorithm: ECDSA
+        size: 256
+      issuerRef:
+        name: selfsigned-root
+        kind: Issuer
+    ---
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: internal-ca
+    spec:
+      ca:
+        secretName: internal-ca
+    ```
+
+    ```bash
+    oc -n <PROJECT-NAME> apply -f internal-ca.yaml
+    oc -n <PROJECT-NAME> wait --for=condition=Ready certificate/internal-ca
+    ```
+
+2. Copy the CA certificate, without its private key, into a ConfigMap that the portal mounts:
+
+    ```bash
+    oc -n <PROJECT-NAME> get secret internal-ca -o jsonpath='{.data.ca\.crt}' | base64 --decode > ca.pem
+    oc -n <PROJECT-NAME> create configmap internal-ca --from-file=ca.pem
+    ```
+
+3. Issue the Platform API's certificate from that CA for the Service name, and point the portal at the CA. The portal runs on Node.js, which adds the certificates in `NODE_EXTRA_CA_CERTS` to the ones it trusts:
+
+    ```yaml
+    platform-api:
+      tls:
+        certManager:
+          createIssuer: false
+          issuerRef:
+            name: internal-ca
+            kind: Issuer
+          commonName: api-portal-platform-api
+          dnsNames:
+            - api-portal-platform-api
+    api-portal-ui:
+      config:
+        platformApi:
+          insecure: false
+      deployment:
+        extraEnv:
+          - name: NODE_EXTRA_CA_CERTS
+            value: /etc/api-portal/platform-api-ca/ca.pem
+        extraVolumes:
+          - name: platform-api-ca
+            configMap:
+              name: internal-ca
+        extraVolumeMounts:
+          - name: platform-api-ca
+            mountPath: /etc/api-portal/platform-api-ca
+            readOnly: true
+    ```
+
+    `extraVolumes` and `extraVolumeMounts` are lists, and Helm replaces a list instead of merging it. If you also mount the database CA, as described in [Configure the database](#configure-the-database), put both volumes in one `extraVolumes` list and both mounts in one `extraVolumeMounts` list.
+
+4. Apply the values with the same `helm upgrade --install` command as in [Step 6](#step-6), then restart the Platform API. It reads its certificate only at startup, so it keeps serving the previous one until it restarts:
+
+    ```bash
+    oc -n <PROJECT-NAME> rollout restart deployment/api-portal-platform-api
+    ```
 
 ---
 
@@ -860,11 +972,11 @@ The API Portal images from update level 1.0.0.7 run on OpenShift without changes
 
 ### Login fails with a certificate error
 
-**Symptom:** Login returns to the login page with "Login failed, please try again". The portal logs contain `Platform API login request failed {"error":"self-signed certificate; ..."}`.
+**Symptom:** Login returns to the login page with "Login failed, please try again". The portal logs contain `Platform API login request failed`, with `self-signed certificate` or `unable to verify the first certificate`.
 
 **Cause:** The portal can't verify the Platform API's certificate.
 
-**Fix:** Issue the certificate for the Service name `api-portal-platform-api` from a publicly trusted CA. For evaluation only, set `api-portal-ui.config.platformApi.insecure: true` (see [Step 6](#step-6)).
+**Fix:** Issue the Platform API's certificate for the Service name `api-portal-platform-api` from a private CA, and make the portal trust that CA, as described in [Trust the Platform API certificate](#trust-the-platform-api-certificate). If you just changed the certificate, restart the Platform API, which reads it only at startup. For evaluation only, set `api-portal-ui.config.platformApi.insecure: true` (see [Step 6](#step-6)).
 
 ### The Service stays pending with no external IP
 

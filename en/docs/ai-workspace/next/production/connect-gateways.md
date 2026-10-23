@@ -46,7 +46,7 @@ A timeout usually indicates a firewall or routing problem. A certificate error u
 
 AI Workspace fills the setup commands in the **Get Started** section from one configuration key. The key is display-only: nothing in AI Workspace connects to it. A wrong value leaves the workspace working normally and leaves every gateway unable to register.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-2-expose-the-control-plane-for-gateways) and [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-2-expose-the-control-plane-for-gateways).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#expose-step-2-expose-the-control-plane-for-gateways), [Deploy on Kubernetes](deploy-on-kubernetes.md#expose-step-2-expose-the-control-plane-for-gateways), and [Deploy on OpenShift](openshift.md#routes).
 
 Write it as a bare `host:port` with no scheme and no path. See [Expose the control plane for gateways](expose-the-workspace.md#step-2-expose-the-control-plane-for-gateways) for the route itself.
 
@@ -61,7 +61,7 @@ Treat the token as a credential in transit too. A value passed on a command line
 
 ## Step 3: Install the gateway runtime
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#gateways-step-3-install-the-gateway-runtime) and [Deploy on Kubernetes](deploy-on-kubernetes.md#gateways-step-3-install-the-gateway-runtime).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#gateways-step-3-install-the-gateway-runtime), [Deploy on Kubernetes](deploy-on-kubernetes.md#gateways-step-3-install-the-gateway-runtime), and [Deploy on OpenShift](openshift.md#openshift-gateways-step-3-install-the-gateway-runtime).
 
 ## Step 4: Keep certificate verification on
 
@@ -79,7 +79,7 @@ The gateway configuration exposes an `insecure_skip_verify` flag under its contr
 
 The Platform API can verify what a gateway reports at registration. Both checks are off by default. Turning them on stops a gateway running an unexpected version or reporting an unexpected type from joining the control plane.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#gateways-step-5-turn-on-registration-checks) and [Deploy on Kubernetes](deploy-on-kubernetes.md#gateways-step-5-turn-on-registration-checks).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#gateways-step-5-turn-on-registration-checks), [Deploy on Kubernetes](deploy-on-kubernetes.md#gateways-step-5-turn-on-registration-checks), and [Deploy on OpenShift](openshift.md#openshift-gateways-step-5-turn-on-registration-checks).
 
 Enable version verification only once your gateway versions match what the control plane expects. Turning it on while a gateway runs a different version blocks that gateway from reconnecting.
 

@@ -21,7 +21,7 @@ Once AI Workspace is serving traffic, three things keep it that way: logs you ca
 
 Both services log to standard output, so whatever collects container logs on your platform already collects theirs. Switch the format to JavaScript Object Notation (JSON) so a log aggregator can index fields instead of matching text.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-1-emit-structured-logs) and [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-1-emit-structured-logs), [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration), and [Deploy on OpenShift](openshift.md#production-step-6).
 
 Keep the level at `info` in production. `debug` is verbose enough to affect throughput and to put request detail in your logs. Leave `browser_debug` off, because it turns on verbose console logging in every user's browser.
 
@@ -57,7 +57,7 @@ Alert on `Heartbeat timeout detected` rather than waiting for the console to sho
 
 The Platform API also logs connection metrics on an interval, which is the closest signal to how many gateways are connected.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-websocket-metrics) and [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-websocket-metrics).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-websocket-metrics), [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-websocket-metrics), and [Deploy on OpenShift](openshift.md#openshift-operate-websocket-metrics).
 
 The Platform API writes this line at `debug` level, so it needs `level = "debug"` as well as `metrics_log_enabled`. At `info` the setting produces no output. Debug logging on the Platform API is verbose, so turn it on to investigate a connection problem rather than leaving it on permanently.
 
@@ -84,7 +84,7 @@ Two things matter, and they're only useful together. A database backup restored 
 | The database | On your organization's schedule for a system of record | Your database backup tooling |
 | The at-rest encryption key | Once, when created, and after any change | Your secret manager, separate from the database backup |
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-3-back-up-what-you-cant-regenerate) and [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-3-back-up-what-you-cant-regenerate).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-3-back-up-what-you-cant-regenerate), [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-3-back-up-what-you-cant-regenerate), and [Deploy on OpenShift](openshift.md#openshift-operate-step-3-back-up-what-you-cant-regenerate).
 
 Test a restore into a non-production environment on a schedule. Only a tested restore proves the backup works.
 
@@ -92,17 +92,17 @@ Test a restore into a non-production environment on a schedule. Only a tested re
 
 Read the release notes first, then back up the database, then upgrade. Both procedures below upgrade the whole stack in one step, so plan the upgrade as a change window that covers both services.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-4-upgrade) and [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-4-upgrade).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-4-upgrade), [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-4-upgrade), and [Deploy on OpenShift](openshift.md#openshift-operate-step-4-upgrade).
 
 ## Step 5: Roll back
 
 Roll back the application, then decide separately about the database. The previous version can't always read a schema the upgrade changed, which is why the backup comes first.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-5-roll-back) and [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-5-roll-back).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-5-roll-back), [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-5-roll-back), and [Deploy on OpenShift](openshift.md#openshift-operate-step-5-roll-back).
 
 ## Step 6: Uninstall
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-6-uninstall) and [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-6-uninstall).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#operate-step-6-uninstall), [Deploy on Kubernetes](deploy-on-kubernetes.md#operate-step-6-uninstall), and [Deploy on OpenShift](openshift.md#openshift-operate-step-6-uninstall).
 
 ## Housekeeping settings
 

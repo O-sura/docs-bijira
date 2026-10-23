@@ -23,7 +23,7 @@ File-based authentication exists for the quickstart and for air-gapped setups. I
 
 Switch both services to your identity provider. They must agree, because the backend for frontend (BFF) runs the login flow and the Platform API validates the resulting token.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-1-delegate-login-to-an-identity-provider) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-1-delegate-login-to-an-identity-provider).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-1-delegate-login-to-an-identity-provider), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-1-delegate-login-to-an-identity-provider), and [Deploy on OpenShift](openshift.md#openshift-harden-step-1-delegate-login-to-an-identity-provider).
 
 Set `audience` to the client ID so a token minted for a different application in the same tenant is rejected. Leaving it empty skips that check.
 
@@ -40,7 +40,7 @@ Both services carry an authorization mode, and the two must be the same value:
 
 A mismatch produces no error at startup. The Platform API enforces the authorization decision, and the workspace only decides which actions to offer. If the two modes differ, the interface either hides actions the Platform API allows, or offers actions that return `403`.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-2-keep-authorization-enforced-and-matched) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-2-keep-authorization-enforced-and-matched).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-2-keep-authorization-enforced-and-matched), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-2-keep-authorization-enforced-and-matched), and [Deploy on OpenShift](openshift.md#openshift-harden-step-2-keep-authorization-enforced-and-matched).
 
 Grant roles by job, not by convenience. Give administrators the manage scopes and give everyone else a read-only role, so a compromised account can't redeploy a provider or read a stored secret.
 
@@ -48,7 +48,7 @@ Grant roles by job, not by convenience. Give administrators the manage scopes an
 
 The defaults protect against a slow or idle peer holding a connection open. Review them rather than removing them.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-3-bound-what-a-client-can-consume) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-3-bound-what-a-client-can-consume).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-3-bound-what-a-client-can-consume), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-3-bound-what-a-client-can-consume), and [Deploy on OpenShift](openshift.md#openshift-harden-step-3-bound-what-a-client-can-consume).
 
 Keep `write` generous. It bounds handler execution, and some handlers wait on a slow upstream such as an LLM completion. Setting `read` or `read_header` to `0` removes the protection against a client that opens a connection and sends nothing. Set either to `0` only behind a proxy that enforces its own bounds.
 
@@ -58,13 +58,13 @@ Size `max_connections` against your gateway count. Each connected gateway holds 
 
 Both images already run as an unprivileged user, UID `10001`. Make that explicit, and remove the privileges neither service needs.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-4-restrict-the-container) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-4-restrict-the-container).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-4-restrict-the-container), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-4-restrict-the-container), and [Deploy on OpenShift](openshift.md#openshift-harden-step-4-restrict-the-container).
 
 ## Step 5: Restrict what each service can reach
 
 The Platform API accepts connections from exactly two sources: the AI Workspace BFF, and your AI gateways. Nothing else needs to reach it.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-5-restrict-what-each-service-can-reach) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-5-restrict-what-each-service-can-reach).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-5-restrict-what-each-service-can-reach), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-5-restrict-what-each-service-can-reach), and [Deploy on OpenShift](openshift.md#openshift-harden-step-5-restrict-what-each-service-can-reach).
 
 ## Step 6: Reduce what you run
 
@@ -73,7 +73,7 @@ For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#har
 - **Pin image tags to a version, not a moving tag.** A pinned tag makes a rollback deterministic.
 - **Pull from a registry you control** where policy requires it, and attach the pull secret rather than making the images public.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-6-reduce-what-you-run) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-6-reduce-what-you-run).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-step-6-reduce-what-you-run), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-step-6-reduce-what-you-run), and [Deploy on OpenShift](openshift.md#openshift-harden-step-6-reduce-what-you-run).
 
 ## Step 7: Bound the session
 
@@ -88,7 +88,7 @@ Shorten both for a deployment handling sensitive data. Shortening the access tok
 
 Confirm the hardening took effect rather than assuming it did.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-verify) and [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-verify).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#harden-verify), [Deploy on Kubernetes](deploy-on-kubernetes.md#harden-verify), and [Deploy on OpenShift](openshift.md#openshift-harden-verify).
 
 ## Related
 

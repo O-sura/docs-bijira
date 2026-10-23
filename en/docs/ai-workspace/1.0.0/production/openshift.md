@@ -10,7 +10,7 @@ tags:
   - kubernetes
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -527,7 +527,7 @@ platform-api:
         name: platform_api
         user: platform_api
         sslMode: verify-full
-        sslRootCert: /etc/platform-api/tls/ca.pem
+        sslRootCert: /etc/platform-api/db-ca/ca.pem
         maxOpenConns: 25
         maxIdleConns: 10
         connMaxLifetime: 300
@@ -556,6 +556,16 @@ platform-api:
         - platform-api.example.com
   persistence:
     enabled: false          # the database server holds the data now
+  deployment:
+    # Mounts the database CA that sslRootCert names
+    extraVolumes:
+      - name: db-ca
+        configMap:
+          name: postgres-ca
+    extraVolumeMounts:
+      - name: db-ca
+        mountPath: /etc/platform-api/db-ca
+        readOnly: true
 
 ai-workspace-ui:
   enabled: true
@@ -607,6 +617,13 @@ A few notes on that file:
 
 - The Routes publish AI Workspace and the Platform API on the hostnames you set, so you don't need an Ingress. Use the same hostnames in `domain`, the redirect URLs, and `controlplaneHost`, and create DNS records that point them at the cluster's router.
 - The connection keys sit under `config.database.postgres` whatever driver you set, so use that same block for SQL Server.
+- `sslRootCert` names the CA that signed your database server's certificate, not the CA of the Platform API's own certificate. The chart doesn't mount that file, so `platform-api.deployment` mounts it from a ConfigMap. Create the ConfigMap before you install:
+
+    ```bash
+    oc -n <PROJECT-NAME> create configmap postgres-ca --from-file=ca.pem=<path-to-database-ca.pem>
+    ```
+
+    Without the file, the Platform API stops at startup with `unable to read CA file`.
 - `persistence.enabled: false` is safe because the database holds the data and the certificates come from cert-manager or a Secret, not the volume.
 - Leave `ai-workspace-ui.config.controlPlane.url` unset. The chart derives the in-cluster Service URL from `global.platformApi`, and setting it is only for an external Platform API.
 - Leave CORS off unless a browser application on another origin, such as the API Portal, calls the Platform API directly. Then allow only those origins:

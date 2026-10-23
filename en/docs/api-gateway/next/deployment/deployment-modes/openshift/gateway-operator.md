@@ -11,7 +11,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -471,7 +471,7 @@ To apply the same settings to every gateway without a ConfigMap per gateway, put
 
 ## Troubleshooting
 
-This section covers issues specific to the operator. The gateways that the operator creates run the same gateway chart as a standalone deployment, so for gateway-level issues, such as runtime socket errors, security context errors on the gateway pods, pending storage, a missing TLS Secret, or Routes, see [Troubleshooting](openshift-standalone.md#troubleshooting) in the standalone guide. Apply the fixes through the gateway's ConfigMap, or through the operator's `gateway.values` for every gateway.
+This section covers issues specific to the operator. The gateways that the operator creates run the same gateway chart as a standalone deployment. For gateway-level issues, see [Troubleshooting](openshift-standalone.md#troubleshooting) in the standalone guide, which covers runtime socket errors, security context errors on the gateway pods, pending storage, a missing TLS Secret, and Routes. Apply those fixes through the gateway's ConfigMap, or through the operator's `gateway.values` for every gateway.
 
 ### Operator pod isn't created: "unable to validate against any security context constraint" { #scc-rejected }
 
@@ -563,7 +563,7 @@ routes.route.openshift.io "<APIGATEWAY-NAME>-gw-management-api" is forbidden: Us
 
 **Cause:** The operator can't sign in to the gateway's management API. The first user in the gateway's ConfigMap has a hashed password, or the ConfigMap doesn't set `enabled: true` for basic authentication.
 
-**Fix:** Set the first user with `enabled: true` and a plain-text password in the gateway's ConfigMap, as described in [Step 5](#step-5). Then change the `RestApi`, for example by deleting and applying it again, so that the operator deploys it again.
+**Fix:** Set the first user with `enabled: true` and a plain-text password in the gateway's ConfigMap, as described in [Step 5](#step-5). Then change the `RestApi` so that the operator deploys it again, for example by deleting and reapplying it.
 
 ### `RestApi` reports "No matching gateway available"
 

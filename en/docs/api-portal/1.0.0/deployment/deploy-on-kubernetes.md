@@ -11,7 +11,7 @@ tags:
   - helm
   - devops
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -56,6 +56,15 @@ The chart never creates or embeds secret values, and it refuses to render withou
 
 ```bash
 ./generate-secrets.sh api-portal my-release   # <namespace> [release-name]
+```
+
+If you'll use PostgreSQL or SQL Server ([Step 5](#configure-the-database)), run it this way instead. The script writes the database password into the portal's Secret only when it creates that Secret, so the password has to be in `APIP_AP_DATABASE_PASSWORD` on this first run. `read -rsp` keeps it off the screen and out of your shell history:
+
+```bash
+read -rsp 'Database password: ' APIP_AP_DATABASE_PASSWORD && echo
+export APIP_AP_DATABASE_PASSWORD
+./generate-secrets.sh api-portal my-release
+unset APIP_AP_DATABASE_PASSWORD
 ```
 
 It writes `values-secrets.yaml`, naming each Secret it created along with the `has*` flags for whichever optional keys it provisioned. Keep that file alongside your own values and pass both at install time. It points the release at the Secret it wrote:
@@ -138,23 +147,44 @@ api-portal-ui:
       database: api_portal       # the schema name — rendered into config as `name`
       user: api_portal
       sslmode: verify-full       # disable | verify-full
-      sslRootCert: /etc/api-portal/certs/ca.pem
+      sslRootCert: /etc/api-portal/db-ca/ca.pem
+  deployment:
+    # Mounts the database CA that sslRootCert names
+    extraVolumes:
+      - name: db-ca
+        configMap:
+          name: postgres-ca
+    extraVolumeMounts:
+      - name: db-ca
+        mountPath: /etc/api-portal/db-ca
+        readOnly: true
 ```
 
 Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
 
-Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
-
-The password never appears in a values file. It comes from the release's Secret, under the key `APIP_AP_DATABASE_PASSWORD`, which is also the name of the environment variable the container receives. `generate-secrets.sh` doesn't prompt for it. It reads the password from the `APIP_AP_DATABASE_PASSWORD` environment variable, and only when it first creates the portal's Secret. Read it without echoing it, then run the script:
+`sslRootCert` names the CA that signed your database server's certificate. The chart doesn't mount that file, so the values above mount it from a ConfigMap. Create the ConfigMap before you deploy:
 
 ```bash
+kubectl -n api-portal create configmap postgres-ca --from-file=ca.pem=<path-to-database-ca.pem>
+```
+
+Without the file, the portal stops at startup with `ENOENT: no such file or directory` and the path.
+
+Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
+
+The password never appears in a values file. It comes from the release's Secret, under the key `APIP_AP_DATABASE_PASSWORD`, which is also the name of the environment variable the container receives. If you exported it before running `generate-secrets.sh` in [Step 1](#provision-the-secrets), it's already there.
+
+If you ran Step 1 without it, delete the portal's Secret and run Step 1 again with the password exported. Nothing uses the Secret until you deploy in [Step 10](#deploy), so regenerating it loses nothing:
+
+```bash
+kubectl -n api-portal delete secret my-release-api-portal-ui-secrets
 read -rsp 'Database password: ' APIP_AP_DATABASE_PASSWORD && echo
 export APIP_AP_DATABASE_PASSWORD
-bash ./generate-secrets.sh api-portal my-release
+./generate-secrets.sh api-portal my-release
 unset APIP_AP_DATABASE_PASSWORD
 ```
 
-If the Secret already exists, the script leaves it untouched. Add the key to the existing Secret instead, or delete the Secret and run the script again.
+If the portal pods stop in `CreateContainerConfigError` with a message about `APIP_AP_DATABASE_PASSWORD`, the key is missing from the Secret.
 
 Size the connection pool against your replica count, as described in [Database Configuration → Connection pool tuning](database-configuration.md#connection-pool-tuning):
 
@@ -401,6 +431,96 @@ api-portal-ui:
 `baseUrl` must use the in-cluster Service name and **container** port, because the portal connects over the cluster network rather than through a published port or ingress. Pointing it at an externally published address makes every login fail while the Platform API itself looks healthy.
 
 `generate-secrets.sh` copies the public key out of the Platform API's own Secret, so the two stay on the same keypair. Set `hasPublicKey: false` when you have no local-auth path at all. See [Control Plane Connection → Local authentication](control-plane-connection.md#local-authentication-development-only).
+
+### Trust the Platform API certificate { #trust-the-platform-api-certificate }
+
+The portal calls the Platform API inside the cluster at `https://my-release-platform-api:9243` and verifies its certificate. The chart's default certificate is self-signed and issued for `platform-api.localhost`, so with `insecure: false` every login fails. Public certificate authorities (CAs) don't issue certificates for an in-cluster Service name, so issue this one from a private CA and make the portal trust that CA:
+
+1. Create the private CA with cert-manager. A self-signed issuer signs the CA certificate, and the `internal-ca` issuer then signs certificates with it. To use a private CA you already run, skip this step and reference its issuer in step 3.
+
+    ```yaml
+    # internal-ca.yaml
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: selfsigned-root
+    spec:
+      selfSigned: {}
+    ---
+    apiVersion: cert-manager.io/v1
+    kind: Certificate
+    metadata:
+      name: internal-ca
+    spec:
+      isCA: true
+      commonName: internal-ca
+      secretName: internal-ca
+      privateKey:
+        algorithm: ECDSA
+        size: 256
+      issuerRef:
+        name: selfsigned-root
+        kind: Issuer
+    ---
+    apiVersion: cert-manager.io/v1
+    kind: Issuer
+    metadata:
+      name: internal-ca
+    spec:
+      ca:
+        secretName: internal-ca
+    ```
+
+    ```bash
+    kubectl -n api-portal apply -f internal-ca.yaml
+    kubectl -n api-portal wait --for=condition=Ready certificate/internal-ca
+    ```
+
+2. Copy the CA certificate, without its private key, into a ConfigMap that the portal mounts:
+
+    ```bash
+    kubectl -n api-portal get secret internal-ca -o jsonpath='{.data.ca\.crt}' | base64 --decode > ca.pem
+    kubectl -n api-portal create configmap internal-ca --from-file=ca.pem
+    ```
+
+3. Issue the Platform API's certificate from that CA for the Service name, and point the portal at the CA. The portal runs on Node.js, which adds the certificates in `NODE_EXTRA_CA_CERTS` to the ones it trusts:
+
+    ```yaml
+    platform-api:
+      tls:
+        certManager:
+          createIssuer: false
+          issuerRef:
+            name: internal-ca
+            kind: Issuer
+          commonName: my-release-platform-api
+          dnsNames:
+            - my-release-platform-api
+    api-portal-ui:
+      config:
+        platformApi:
+          insecure: false
+      deployment:
+        extraEnv:
+          - name: NODE_EXTRA_CA_CERTS
+            value: /etc/api-portal/platform-api-ca/ca.pem
+        extraVolumes:
+          - name: platform-api-ca
+            configMap:
+              name: internal-ca
+        extraVolumeMounts:
+          - name: platform-api-ca
+            mountPath: /etc/api-portal/platform-api-ca
+            readOnly: true
+    ```
+
+    `extraVolumes` and `extraVolumeMounts` are lists, and Helm replaces a list instead of merging it. If you also mount the database CA, as described in [Step 5](#configure-the-database), put both volumes in one `extraVolumes` list and both mounts in one `extraVolumeMounts` list.
+
+4. Apply the values with the `helm upgrade` command in [Upgrade](#upgrade), then restart the Platform API. It reads its certificate only at startup, so it keeps serving the previous one until it restarts:
+
+    ```bash
+    kubectl -n api-portal rollout restart deployment/my-release-platform-api
+    ```
 
 ## Related
 

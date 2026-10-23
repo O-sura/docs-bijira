@@ -40,13 +40,13 @@ Terminating at the edge means the plain-HTTP listener carries real user traffic.
 
 Use a certificate whose subject alternative name covers the public hostname browsers use.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#tls-step-2-supply-the-certificate-for-the-workspace-listener) and [Deploy on Kubernetes](deploy-on-kubernetes.md#tls-step-2-supply-the-certificate-for-the-workspace-listener).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#tls-step-2-supply-the-certificate-for-the-workspace-listener), [Deploy on Kubernetes](deploy-on-kubernetes.md#tls-step-2-supply-the-certificate-for-the-workspace-listener), and [Deploy on OpenShift](openshift.md#openshift-tls-step-2-supply-the-certificate-for-the-workspace-listener).
 
 ## Step 3: Make the BFF verify the Platform API
 
 The BFF opens a server-to-server connection to the Platform API on every proxied call. Verify that certificate, because this hop carries every user's access token.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#tls-step-3-make-the-bff-verify-the-platform-api) and [Deploy on Kubernetes](deploy-on-kubernetes.md#tls-step-3-make-the-bff-verify-the-platform-api).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#tls-step-3-make-the-bff-verify-the-platform-api), [Deploy on Kubernetes](deploy-on-kubernetes.md#tls-step-3-make-the-bff-verify-the-platform-api), and [Deploy on OpenShift](openshift.md#openshift-tls-step-3-make-the-bff-verify-the-platform-api).
 
 !!! danger "Never skip verification in production"
     `tls_skip_verify` (`tlsSkipVerify` in the chart) accepts any certificate the upstream presents, which removes the protection TLS gives this hop. It exists for local development against a self-signed certificate. If you can't verify the certificate, fix the trust chain rather than turning the check off.

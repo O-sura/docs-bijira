@@ -43,7 +43,7 @@ Two settings matter for availability once the database server is in place:
 - **Run the database itself in high availability.** A single database server leaves the whole control plane dependent on one machine. Use a managed service with automatic failover, or a replicated cluster.
 - **Size the connection pool per replica, not per deployment.** `max_open_conns` applies to each Platform API instance. Three replicas at 25 connections each need at least 75 connections on the server, plus headroom for maintenance and other clients.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration) and [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#step-6-write-the-configuration), [Deploy on Kubernetes](deploy-on-kubernetes.md#step-6-write-the-configuration), and [Deploy on OpenShift](openshift.md#production-step-6).
 
 ## Step 2: Give every instance the same key material
 
@@ -54,7 +54,7 @@ All instances must use the same at-rest encryption key so they can decrypt data 
 
 ## Step 3: Add replicas
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-3-add-replicas) and [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-3-add-replicas).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-3-add-replicas), [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-3-add-replicas), and [Deploy on OpenShift](openshift.md#openshift-ha-step-3-add-replicas).
 
 !!! warning "Configure session affinity for multiple replicas"
     When deploying the workspace with multiple replicas, enable session affinity (sticky sessions) on the ingress or load balancer.
@@ -65,23 +65,23 @@ For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-
 
 Set CPU requests first. Without them the autoscaler has no baseline to compute utilization against.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-4-autoscale-on-demand) and [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-4-autoscale-on-demand).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-4-autoscale-on-demand), [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-4-autoscale-on-demand), and [Deploy on OpenShift](openshift.md#openshift-ha-step-4-autoscale-on-demand).
 
 ## Step 5: Survive a node or host failure
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-5-survive-a-node-or-host-failure) and [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-5-survive-a-node-or-host-failure).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-5-survive-a-node-or-host-failure), [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-5-survive-a-node-or-host-failure), and [Deploy on OpenShift](openshift.md#openshift-ha-step-5-survive-a-node-or-host-failure).
 
 ## Step 6: Tune the health probes
 
 Both services answer a health endpoint: `/healthz` for AI Workspace, `/health` for the Platform API. The chart defaults suit a fast start. If your first start is slow, such as during a large schema migration, add a startup probe rather than lengthening the liveness delay. A startup probe gives the process time to come up without weakening the liveness check afterward.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-6-tune-the-health-probes) and [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-6-tune-the-health-probes).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-step-6-tune-the-health-probes), [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-step-6-tune-the-health-probes), and [Deploy on OpenShift](openshift.md#openshift-ha-step-6-tune-the-health-probes).
 
 ## Verify
 
 Confirm replicas are serving, then confirm a failure doesn't sign users out.
 
-For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-verify) and [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-verify).
+For the configuration on each platform, see [Deploy on VMs](deploy-on-vms.md#ha-verify), [Deploy on Kubernetes](deploy-on-kubernetes.md#ha-verify), and [Deploy on OpenShift](openshift.md#openshift-ha-verify).
 
 ## Related
 
