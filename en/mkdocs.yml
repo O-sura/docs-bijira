@@ -2208,6 +2208,7 @@ plugins:
         ai-gateway/1.2.0/setup/configuration.md: ai-gateway/1.2.0/setup-and-deployment/configuration.md
         ai-gateway/1.2.0/setup/database-setup.md: ai-gateway/1.2.0/setup-and-deployment/database-setup.md
 extra_css:
+  - assets/css/extra.css
   - assets/lib/highlightjs/default.min.css
   - assets/css/theme.css
   - assets/lib/json-formatter/json-formatter.css
