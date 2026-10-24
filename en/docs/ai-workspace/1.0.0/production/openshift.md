@@ -10,7 +10,7 @@ tags:
   - kubernetes
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -40,8 +40,8 @@ You need the following tools on your machine:
 
 | Tool | Purpose | Install guide |
 | ---- | ------- | ------------- |
-| `oc` and `kubectl` | OpenShift CLI for managing cluster resources. The OpenShift CLI download includes both. | [Install](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html) |
-| `helm` (v3) | Package manager for deploying the Helm chart | [Install](https://helm.sh/docs/intro/install/) |
+| `oc` and `kubectl` | OpenShift CLI for managing cluster resources. The OpenShift CLI download includes both. | [Install the OpenShift CLI](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html) |
+| `helm` (v3) | Package manager for deploying the Helm chart | [Install Helm](https://helm.sh/docs/intro/install/) |
 | `openssl` | Generates keys for `generate-secrets.sh` | Pre-installed on most systems |
 | `htpasswd` | Hashes the admin password for `generate-secrets.sh` | Pre-installed on macOS. On Linux, install `httpd-tools` (RHEL, Fedora) or `apache2-utils` (Debian, Ubuntu). |
 
@@ -167,7 +167,7 @@ The AI Workspace UI needs its own Secret only for OpenID Connect (OIDC) login. F
         enabled: true
     ```
 
-    To use your own hostnames, set `ai-workspace-ui.openshift.routes.aiWorkspace.hostname` and `platform-api.openshift.routes.platformApi.hostname`. Use the same hostnames in `domain` and `controlplaneHost`.
+    To use your own hostnames, set `ai-workspace-ui.openshift.routes.aiWorkspace.hostname` and `platform-api.openshift.routes.platformApi.hostname`. Use the AI Workspace hostname in `domain`, and the Platform API hostname with port `443` in `controlplaneHost`.
 
     **Platform API certificate**: the BFF calls the Platform API in the cluster at `https://ai-workspace-platform-api:9243` and verifies its certificate. The chart's default certificate is self-signed and issued for `platform-api.localhost`, so verification fails. Choose one of the following:
 
@@ -406,7 +406,7 @@ platform-api:
       adminPasswordHash: APIP_CP_ADMIN_PASSWORD_HASH
 ```
 
-#### Verify { #openshift-secrets-verify }
+#### Verify the secrets { #openshift-secrets-verify }
 
 ```bash
 oc -n <PROJECT-NAME> get pods
@@ -593,6 +593,7 @@ ai-workspace-ui:
       browserDebug: false
     controlPlane:
       tlsSkipVerify: false
+      caFile: /etc/ai-workspace/ca/ca.pem   # the private CA from Step 5
     gateway:
       controlplaneHost: platform-api.example.com:443
     auth:
@@ -606,6 +607,16 @@ ai-workspace-ui:
         postLogoutRedirectUrl: https://workspace.example.com/ai-workspace/login
   service:
     type: ClusterIP         # the Route is the entry point
+  deployment:
+    # Mounts the private CA that caFile names, see Step 5
+    extraVolumes:
+      - name: control-plane-ca
+        configMap:
+          name: internal-ca
+    extraVolumeMounts:
+      - name: control-plane-ca
+        mountPath: /etc/ai-workspace/ca
+        readOnly: true
   tls:
     certificateProvider: cert-manager
     certManager:
@@ -623,7 +634,7 @@ ai-workspace-ui:
 
 A few notes on that file:
 
-- The Routes publish AI Workspace and the Platform API on the hostnames you set, so you don't need an Ingress. Use the same hostnames in `domain`, the redirect URLs, and `controlplaneHost`, and create DNS records that point them at the cluster's router.
+- The Routes publish AI Workspace and the Platform API on the hostnames you set, so you don't need an Ingress. Use the AI Workspace hostname in `domain` and the redirect URLs, and the Platform API hostname in `controlplaneHost`, and create DNS records that point them at the cluster's router.
 - The Platform API's Route passes TLS through, so one certificate serves both the BFF, which calls the Service name `ai-workspace-platform-api`, and the gateways, which call `platform-api.example.com`. The values list both names. A public CA can't issue for the Service name, so use a CA that the BFF and your gateways both trust, as in [Step 5](#openshift-tls-step-3-make-the-bff-verify-the-platform-api). To give gateways a publicly trusted certificate instead, switch the Platform API's Route to `reencrypt`, as described in [Route configuration](#routes).
 - The connection keys sit under `config.database.postgres` whatever driver you set, so use that same block for SQL Server.
 - `sslRootCert` names the CA that signed your database server's certificate, not the CA of the Platform API's own certificate. The chart doesn't mount that file, so `platform-api.deployment` mounts it from a ConfigMap. Create the ConfigMap before you install:
@@ -681,7 +692,7 @@ Then confirm authorization works, not just authentication. Sign in as a user wit
 
 A single instance of each service serves users, but it makes every restart an outage. Add redundancy now that the deployment is verified.
 
-Raise both services to at least two instances. Signed-in users reach any replica, because the workspace carries the access token in the session cookie and forwards it without a server-side lookup. Two settings keep token renewal working across replicas: session affinity on the workspace Route, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
+Raise both services to at least two instances. The workspace keeps sessions in memory, so each signed-in user must keep reaching the same replica. Two settings keep sessions and token renewal working across replicas: session affinity on the workspace Route, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
 
 #### Add replicas { #openshift-ha-step-3-add-replicas }
 
@@ -802,7 +813,7 @@ platform-api:
       failureThreshold: 30
 ```
 
-#### Verify { #openshift-ha-verify }
+#### Verify high availability { #openshift-ha-verify }
 
 ```bash
 oc -n <PROJECT-NAME> get pods -o wide
@@ -980,7 +991,7 @@ global:
       imagePullSecret: wso2-subscription-creds
 ```
 
-#### Verify { #openshift-harden-verify }
+#### Verify the hardening { #openshift-harden-verify }
 
 ```bash
 oc -n <PROJECT-NAME> get pods -o custom-columns='POD:.metadata.name,SCC:.metadata.annotations.openshift\.io/scc,UID:.spec.containers[0].securityContext.runAsUser'
@@ -993,7 +1004,7 @@ For the reasoning behind each setting, see [Harden the deployment](harden.md).
 
 ### Step 9: Connect AI gateways { #openshift-gateways }
 
-The control plane is ready for a data plane. Create a gateway in AI Workspace under **AI Gateways**, copy its registration token, and install the gateway runtime against the control plane address from step 1. The workspace shows that address to gateways from `ai-workspace-ui.config.gateway.controlplaneHost`, which the values file in [Step 6](#production-step-6) sets to the Platform API Route's hostname on port `443`.
+The control plane is ready for a data plane. Create a gateway in AI Workspace under **AI Gateways**, copy its registration token, and install the gateway runtime against the control plane address you collected in Step 1 of [Production configuration](#production-configuration). The workspace shows that address to gateways from `ai-workspace-ui.config.gateway.controlplaneHost`, which the values file in [Step 6](#production-step-6) sets to the Platform API Route's hostname on port `443`.
 
 The registration token is the gateway token the commands below ask for. Paste it at the `Registration token:` prompt, which keeps it in the `GW_TOKEN` shell variable only until it's written to a file.
 
@@ -1102,7 +1113,7 @@ oc -n <PROJECT-NAME> delete pvc <release-name>-platform-api-data
       -f values-secrets.yaml -f my_values.yaml > ./next.yaml
     ```
 
-    The rendered output contains Secret manifests in the clear. Review it, then remove it:
+    The rendered output contains your full configuration. Review it, then remove it:
 
     ```bash
     shred -u ./next.yaml

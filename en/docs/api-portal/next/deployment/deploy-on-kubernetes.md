@@ -11,7 +11,7 @@ tags:
   - helm
   - devops
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -111,12 +111,13 @@ api-portal-ui:
         clientId: <portal-client-id>
         callbackUrl: https://portal.example.com/api-portal/<org-handle>/callback
         logoutUrl: https://idp.example.com/oidc/logout
+        logoutRedirectUri: https://portal.example.com/api-portal/<org-handle>
         scope: "openid profile email"
 ```
 
 The chart renders `auth.mode=idp` once `idp.clientId` is set; the client secret comes from the Secret.
 
-Both the callback and logout redirect URLs must sit under the portal's `/api-portal` mount and match what you registered in the identity provider. See [Security Hardening → Authentication](security-hardening.md#authentication).
+`logoutUrl` is the identity provider's logout endpoint, and `logoutRedirectUri` is where the identity provider returns the user after logout. Both `callbackUrl` and `logoutRedirectUri` must sit under the portal's `/api-portal` mount and match what you registered in the identity provider. See [Security Hardening → Authentication](security-hardening.md#authentication).
 
 ## Step 4: Configure authorization { #configure-authorization }
 
@@ -144,7 +145,7 @@ api-portal-ui:
       driver: postgres           # sqlite | postgres | mssql
       host: postgres.example.com
       port: 5432
-      database: api_portal       # the schema name — rendered into config as `name`
+      database: api_portal       # the database name, rendered into config as `name`
       user: api_portal
       sslmode: verify-full       # disable | verify-full
       sslRootCert: /etc/api-portal/db-ca/ca.pem
@@ -160,7 +161,7 @@ api-portal-ui:
         readOnly: true
 ```
 
-Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
+Two key names catch people out: the database name goes in `database`, not `name`, and `sslmode` is all lowercase.
 
 `sslRootCert` names the CA that signed your database server's certificate. The chart doesn't mount that file, so the values above mount it from a ConfigMap. Create the ConfigMap before you deploy:
 
@@ -168,7 +169,7 @@ Two key names catch people out: the schema name is `database`, not `name`, and `
 kubectl -n api-portal create configmap postgres-ca --from-file=ca.pem=<path-to-database-ca.pem>
 ```
 
-Without the file, the portal stops at startup with `ENOENT: no such file or directory` and the path.
+Without the file, the portal stops at startup with an `ENOENT: no such file or directory` error that names the missing file.
 
 Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
 
@@ -406,9 +407,11 @@ Before you upgrade, read the two cautions in [Verify & Upgrade → Upgrade](depl
 
 ## Local authentication (development only) { #local-authentication }
 
-Production deployments delegate login to an identity provider. For a development or demo deployment that uses the built-in login form, point the portal at a Platform API:
+Production deployments delegate login to an identity provider. For a development or demo deployment that uses the built-in login form, point the portal at the Platform API bundled with the chart. Turn it back on, which replaces the `platform-api.enabled: false` from [Prerequisites](#prerequisites):
 
 ```yaml
+platform-api:
+  enabled: true
 api-portal-ui:
   config:
     platformApi:

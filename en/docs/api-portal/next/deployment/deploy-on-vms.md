@@ -10,7 +10,7 @@ tags:
   - docker
   - devops
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -49,10 +49,11 @@ It provisions the TLS pair under `resources/certificates/` and the portal's encr
 | `resources/keys/api-portal-session-secret` | Session-signing secret |
 | `resources/certificates/cert.pem` + `key.pem` | TLS pair |
 
-Then copy the generated material to every other VM before starting them, so all instances share it:
+Then copy the generated material and the two environment files to every other VM before starting them, so all instances share them:
 
 ```bash
-rsync -a resources/keys/ resources/certificates/ <other-vm>:<install-dir>/resources/
+rsync -a resources/keys resources/certificates <other-vm>:<install-dir>/resources/
+rsync -a .env api-platform.env <other-vm>:<install-dir>/
 ```
 
 Do **not** run `setup.sh` independently on each VM. It would generate a different key and session secret per host, which is the failure described in [Security Hardening](security-hardening.md#secrets). On VMs, keeping the two secrets byte-identical is on you: generate once, then copy `resources/keys/` to every host. The provisioning script leaves existing material untouched when re-run, so upgrades don't rotate secrets out from under running instances.
@@ -140,10 +141,9 @@ Then set the values in `api-platform.env` on each VM, including the database pas
 
 `user` has no fallback on purpose: a non-SQLite driver with no user, host, or name refuses to start rather than silently connecting as a conventional superuser name to whatever server the defaults point at.
 
-Size the connection pool against your instance count, as described in [Database Configuration → Connection pool tuning](database-configuration.md#connection-pool-tuning). The pool settings sit in the same block:
+Size the connection pool against your instance count, as described in [Database Configuration → Connection pool tuning](database-configuration.md#connection-pool-tuning). Add the pool settings to the same `[api_portal.database]` block:
 
 ```toml
-[api_portal.database]
 max_open_conns = 25
 min_open_conns = 2
 pool_idle_timeout_ms = 10000

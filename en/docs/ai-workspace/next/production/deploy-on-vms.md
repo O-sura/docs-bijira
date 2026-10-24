@@ -9,7 +9,7 @@ tags:
   - deployment
   - docker
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -510,7 +510,7 @@ Watch CPU and memory against those limits, and treat sustained pressure as the s
 
 The shipped Compose health checks call each endpoint from inside the container. Point your load balancer at the same endpoints, over the port each service listens on.
 
-### Verify { #ha-verify }
+### Verify high availability { #ha-verify }
 
 ```bash
 # On each host. -k skips verification because the certificate names the
@@ -607,7 +607,7 @@ Mount every configuration file, certificate, and secret with `:ro`, as the shipp
 
 The Compose file in [Step 6](#step-6-write-the-configuration) pins both images to a version, which makes a rollback deterministic. Leave the `api-portal` profile out of `COMPOSE_PROFILES` unless you use the API Portal, and keep the plain-HTTP listeners off unless a proxy in front of a service terminates TLS.
 
-### Verify { #harden-verify }
+### Verify the hardening { #harden-verify }
 
 ```bash
 # The container runs as UID 10001, not root.

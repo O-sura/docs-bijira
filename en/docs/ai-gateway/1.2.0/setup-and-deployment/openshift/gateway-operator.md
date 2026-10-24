@@ -11,7 +11,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -392,7 +392,7 @@ To reach the sandbox environment of an API, serve APIs on their own hostnames, o
 
     The response is the upstream's echo of the request, with `"url": "https://httpbin.org/anything/info"`.
 
-5. Check LLM traffic too. Store the provider's API key in a Secret. The gateway sends the Secret's value as the `Authorization` header unchanged, so include the `Bearer ` prefix. Reading the key into a file only you can read keeps it out of your shell history and the process list:
+5. Check LLM traffic too. Store the provider's API key in a Secret. The gateway sends the Secret's value as the `Authorization` header unchanged, so include the `Bearer` prefix followed by a space. Reading the key into a file only you can read keeps it out of your shell history and the process list:
 
     ```bash
     umask 077

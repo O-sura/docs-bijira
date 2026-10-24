@@ -168,7 +168,7 @@ platform-api:
       adminPasswordHash: APIP_CP_ADMIN_PASSWORD_HASH
 ```
 
-### Verify { #secrets-verify }
+### Verify the secrets { #secrets-verify }
 
 Confirm that the Secret holds the key names the chart expects:
 
@@ -691,7 +691,7 @@ platform-api:
       failureThreshold: 30
 ```
 
-### Verify { #ha-verify }
+### Verify high availability { #ha-verify }
 
 ```bash
 kubectl -n <namespace> get pods -o wide
@@ -902,7 +902,7 @@ global:
       imagePullSecret: wso2-subscription-creds
 ```
 
-### Verify { #harden-verify }
+### Verify the hardening { #harden-verify }
 
 ```bash
 kubectl -n <namespace> get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext.runAsUser}{"\n"}{end}'
@@ -1024,7 +1024,7 @@ kubectl -n <namespace> delete pvc <release-name>-platform-api-data
       -f values-secrets.yaml -f my_values.yaml > ./next.yaml
     ```
 
-    The rendered output contains Secret manifests in the clear. Review it, then remove it:
+    The rendered output contains your full configuration. Review it, then remove it:
 
     ```bash
     shred -u ./next.yaml

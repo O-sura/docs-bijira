@@ -11,7 +11,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -544,14 +544,13 @@ routes.route.openshift.io "<APIGATEWAY-NAME>-gw-management-api" is forbidden: Us
 
 **Fix:**
 
-1. Upgrade the operator with `openshift.enabled: true` or `auto`:
+1. Set `openshift.enabled: true` or `auto` in `operator-values.yaml`, and upgrade the operator with it:
 
     ```bash
     helm upgrade gateway-operator oci://ghcr.io/wso2/api-platform/helm-charts/gateway-operator \
       --version <CHART_VERSION> \
       --namespace <PROJECT-NAME> \
-      --reuse-values \
-      --set openshift.enabled=true
+      -f operator-values.yaml
     ```
 
 2. If the message starts with `Max retries (10) exceeded`, the operator has stopped retrying that gateway. Change any value in the gateway's ConfigMap to make the operator try again.

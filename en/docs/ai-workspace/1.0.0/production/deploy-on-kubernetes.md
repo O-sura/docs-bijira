@@ -10,7 +10,7 @@ tags:
   - kubernetes
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -168,7 +168,7 @@ platform-api:
       adminPasswordHash: APIP_CP_ADMIN_PASSWORD_HASH
 ```
 
-### Verify { #secrets-verify }
+### Verify the secrets { #secrets-verify }
 
 Confirm that the Secret holds the key names the chart expects:
 
@@ -373,6 +373,7 @@ ai-workspace-ui:
       browserDebug: false
     controlPlane:
       tlsSkipVerify: false
+      caFile: /etc/ai-workspace/ca/ca.pem   # the private CA from Step 5
     gateway:
       controlplaneHost: platform-api.example.com:443
     auth:
@@ -386,6 +387,16 @@ ai-workspace-ui:
         postLogoutRedirectUrl: https://workspace.example.com/ai-workspace/login
   service:
     type: ClusterIP         # the ingress is the entry point
+  deployment:
+    # Mounts the private CA that caFile names, see Step 5
+    extraVolumes:
+      - name: control-plane-ca
+        configMap:
+          name: internal-ca
+    extraVolumeMounts:
+      - name: control-plane-ca
+        mountPath: /etc/ai-workspace/ca
+        readOnly: true
   tls:
     certificateProvider: cert-manager
     certManager:
@@ -577,7 +588,7 @@ Then confirm authorization works, not just authentication. Sign in as a user wit
 
 A single instance of each service serves users, but it makes every restart an outage. Add redundancy now that the deployment is verified.
 
-Raise both services to at least two instances. Signed-in users reach any replica, because the workspace carries the access token in the session cookie and forwards it without a server-side lookup. Two settings keep token renewal working across replicas: session affinity on the workspace Ingress, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
+Raise both services to at least two instances. The workspace keeps sessions in memory, so each signed-in user must keep reaching the same replica. Two settings keep sessions and token renewal working across replicas: session affinity on the workspace Ingress, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
 
 Apply each values change in this step and the ones after it with the same `helm upgrade --install` command as in [Step 7](#step-7-start-the-deployment).
 
@@ -700,7 +711,7 @@ platform-api:
       failureThreshold: 30
 ```
 
-### Verify { #ha-verify }
+### Verify high availability { #ha-verify }
 
 ```bash
 kubectl -n <namespace> get pods -o wide
@@ -911,7 +922,7 @@ global:
       imagePullSecret: wso2-subscription-creds
 ```
 
-### Verify { #harden-verify }
+### Verify the hardening { #harden-verify }
 
 ```bash
 kubectl -n <namespace> get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.securityContext.runAsUser}{"\n"}{end}'
@@ -1033,7 +1044,7 @@ kubectl -n <namespace> delete pvc <release-name>-platform-api-data
       -f values-secrets.yaml -f my_values.yaml > ./next.yaml
     ```
 
-    The rendered output contains Secret manifests in the clear. Review it, then remove it:
+    The rendered output contains your full configuration. Review it, then remove it:
 
     ```bash
     shred -u ./next.yaml

@@ -9,7 +9,7 @@ tags:
   - deployment
   - docker
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-23
 content_type: "how-to"
 ---
 
@@ -461,7 +461,7 @@ Then confirm authorization works, not just authentication. Sign in as a user wit
 
 A single instance of each service serves users, but it makes every restart an outage. Add redundancy now that the deployment is verified.
 
-Raise both services to at least two instances. Signed-in users reach any replica, because the workspace carries the access token in the session cookie and forwards it without a server-side lookup. Two settings keep token renewal working across replicas: session affinity on the workspace pool, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
+Raise both services to at least two instances. The workspace keeps sessions in memory, so each signed-in user must keep reaching the same replica. Two settings keep sessions and token renewal working across replicas: session affinity on the workspace pool, and non-rotating refresh tokens for this client in your identity provider, or a reuse grace window.
 
 ### Add replicas { #ha-step-3-add-replicas }
 
@@ -510,7 +510,7 @@ Watch CPU and memory against those limits, and treat sustained pressure as the s
 
 The shipped Compose health checks call each endpoint from inside the container. Point your load balancer at the same endpoints, over the port each service listens on.
 
-### Verify { #ha-verify }
+### Verify high availability { #ha-verify }
 
 ```bash
 # On each host. -k skips verification because the certificate names the
@@ -607,7 +607,7 @@ Mount every configuration file, certificate, and secret with `:ro`, as the shipp
 
 The Compose file in [Step 6](#step-6-write-the-configuration) pins both images to a version, which makes a rollback deterministic. Leave the `api-portal` profile out of `COMPOSE_PROFILES` unless you use the API Portal, and keep the plain-HTTP listeners off unless a proxy in front of a service terminates TLS.
 
-### Verify { #harden-verify }
+### Verify the hardening { #harden-verify }
 
 ```bash
 # The container runs as UID 10001, not root.

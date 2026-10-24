@@ -10,7 +10,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -304,7 +304,7 @@ A healthy pod isn't proof that LLM traffic works. Deploy one provider and one pr
     install -m 600 /dev/null controller.netrc
     read -rp "Controller admin username: " ADMIN_USERNAME
     read -rsp "Controller admin password: " ADMIN_PASSWORD && echo
-    printf 'machine localhost login %s password %s\n' "$ADMIN_USERNAME" "$ADMIN_PASSWORD" > controller.netrc
+    printf 'machine %s login %s password %s\n' localhost "$ADMIN_USERNAME" "$ADMIN_PASSWORD" > controller.netrc
     unset ADMIN_PASSWORD
     ```
 
@@ -333,7 +333,7 @@ A healthy pod isn't proof that LLM traffic works. Deploy one provider and one pr
         auth:
           type: api-key
           header: Authorization
-          value: ${OPENAI_API_KEY}
+          value: Bearer ${OPENAI_API_KEY}
       accessControl:
         mode: deny_all
         exceptions:

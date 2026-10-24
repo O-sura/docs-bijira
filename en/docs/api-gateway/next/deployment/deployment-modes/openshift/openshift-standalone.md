@@ -10,7 +10,7 @@ tags:
   - deployment
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-21
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -302,7 +302,7 @@ To reach the sandbox environment of an API, or to serve APIs on their own hostna
     install -m 600 /dev/null controller.netrc
     read -rp "Management API username: " ADMIN_USERNAME
     read -rsp "Management API password: " ADMIN_PASSWORD && echo
-    printf 'machine localhost login %s password %s\n' "$ADMIN_USERNAME" "$ADMIN_PASSWORD" > controller.netrc
+    printf 'machine %s login %s password %s\n' localhost "$ADMIN_USERNAME" "$ADMIN_PASSWORD" > controller.netrc
     unset ADMIN_PASSWORD
     ```
 

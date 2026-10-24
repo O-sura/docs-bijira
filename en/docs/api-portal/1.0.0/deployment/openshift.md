@@ -10,7 +10,7 @@ tags:
   - kubernetes
   - helm
 author: WSO2 API Platform Documentation Team
-last_updated: 2026-10-23
+last_updated: 2026-10-24
 content_type: "how-to"
 ---
 
@@ -25,7 +25,7 @@ For more information about OpenShift container security and file permissions, se
 !!! warning "Before you deploy on OpenShift, make sure you have the following:"
 
     1. **The Secrets that `generate-secrets.sh` creates**: the chart refuses to install without them.
-    2. **cert-manager**, or TLS Secrets you provide: the charts use them to issue the HTTPS certificates of both components.
+    2. **cert-manager, or your own TLS Secrets**: by default, cert-manager issues the HTTPS certificates of both components. To use your own Secrets instead, set `tls.certificateProvider: secret` and `tls.secret.name` under both `platform-api` and `api-portal-ui`.
     3. **A StorageClass**: both components store their SQLite databases in PersistentVolumeClaims (PVCs). Either the cluster has a default StorageClass, or you set one explicitly.
     4. **Chart 1.0.1 or later**: earlier charts have no OpenShift values, so they create no Routes and report no error.
     5. **Images at update level 0.16.0.4 (Platform API) and 1.0.0.7 (API Portal) or later**: you set them in [Step 6](#step-6). The public `1.0.0` API Portal image can't write its log files under the default `restricted-v2` SCC, and it serves the portal without the `/api-portal` path that this guide uses. Update levels are available with a WSO2 subscription.
@@ -40,8 +40,8 @@ You need the following tools on your machine:
 
 | Tool | Purpose | Install guide |
 | ---- | ------- | ------------- |
-| `oc` and `kubectl` | OpenShift CLI for managing cluster resources. The OpenShift CLI download includes both. | [Install](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html) |
-| `helm` (v3) | Package manager for deploying the Helm chart | [Install](https://helm.sh/docs/intro/install/) |
+| `oc` and `kubectl` | OpenShift CLI for managing cluster resources. The OpenShift CLI download includes both. | [Install the OpenShift CLI](https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html) |
+| `helm` (v3) | Package manager for deploying the Helm chart | [Install Helm](https://helm.sh/docs/intro/install/) |
 | `openssl` | Used by `generate-secrets.sh` to generate keys | Pre-installed on most systems |
 | `htpasswd` | Used by `generate-secrets.sh` to hash the admin password | Pre-installed on macOS. On Linux, install `httpd-tools` (RHEL, Fedora) or `apache2-utils` (Debian, Ubuntu). |
 
@@ -93,7 +93,7 @@ openssl version
 
 ### Step 3: Install cert-manager { #step-3 }
 
-Both components use cert-manager to issue their HTTPS certificates. If cert-manager is already installed on the cluster, skip this step.
+Both components use cert-manager to issue their HTTPS certificates. If cert-manager is already installed on the cluster, or you use your own TLS Secrets, skip this step.
 
 ```bash
 helm upgrade --install \
@@ -301,6 +301,7 @@ api-portal-ui:
         clientId: <portal-client-id>
         callbackUrl: https://<PORTAL_HOST>/api-portal/<org-handle>/callback
         logoutUrl: https://idp.example.com/oidc/logout
+        logoutRedirectUri: https://<PORTAL_HOST>/api-portal/<org-handle>
         scope: "openid profile email"
 ```
 
@@ -322,7 +323,7 @@ api-portal-ui:
     hasIdpClientSecret: true
 ```
 
-Both the callback and logout redirect URLs must sit under the portal's `/api-portal` mount and match what you registered in the identity provider. Use the portal's Route host, the same host as in `baseUrl`. See [Security Hardening → Authentication](security-hardening.md#authentication).
+`logoutUrl` is the identity provider's logout endpoint, and `logoutRedirectUri` is where the identity provider returns the user after logout. Both `callbackUrl` and `logoutRedirectUri` must sit under the portal's `/api-portal` mount and match what you registered in the identity provider. Use the portal's Route host, the same host as in `baseUrl`. See [Security Hardening → Authentication](security-hardening.md#authentication).
 
 ### Configure authorization { #configure-authorization }
 
@@ -350,7 +351,7 @@ api-portal-ui:
       driver: postgres           # sqlite | postgres | mssql
       host: postgres.example.com
       port: 5432
-      database: api_portal       # the schema name — rendered into config as `name`
+      database: api_portal       # the database name, rendered into config as `name`
       user: api_portal
       sslmode: verify-full       # disable | verify-full
       sslRootCert: /etc/api-portal/db-ca/ca.pem
@@ -368,7 +369,7 @@ api-portal-ui:
         readOnly: true
 ```
 
-Two key names catch people out: the schema name is `database`, not `name`, and `sslmode` is all lowercase.
+Two key names catch people out: the database name goes in `database`, not `name`, and `sslmode` is all lowercase.
 
 `persistence.enabled: false` removes the portal's SQLite volume, which an external database replaces. Leave it on and every replica mounts the same `ReadWriteOnce` claim, so a second replica on another node can't start.
 
@@ -378,7 +379,7 @@ Two key names catch people out: the schema name is `database`, not `name`, and `
 oc -n <PROJECT-NAME> create configmap postgres-ca --from-file=ca.pem=<path-to-database-ca.pem>
 ```
 
-Without the file, the portal stops at startup with `ENOENT: no such file or directory` and the path.
+Without the file, the portal stops at startup with an `ENOENT: no such file or directory` error that names the missing file.
 
 Switching `driver` off `sqlite` is also what unlocks scaling — the chart refuses to render an autoscaler on a database that can't be shared.
 
@@ -573,9 +574,11 @@ Before you upgrade, read the two cautions in [Verify & Upgrade → Upgrade](depl
 
 ### Local authentication (development only) { #local-authentication }
 
-The steps above use local authentication through the bundled Platform API. Production deployments delegate login to an identity provider instead. The local-auth settings are:
+The steps above use local authentication through the bundled Platform API. Production deployments delegate login to an identity provider instead. To keep local authentication with this production configuration, turn the bundled Platform API back on, which replaces the `platform-api.enabled: false` from [Turn off the bundled Platform API](#turn-off-the-bundled-platform-api). The local-auth settings are:
 
 ```yaml
+platform-api:
+  enabled: true
 api-portal-ui:
   config:
     platformApi:
@@ -907,26 +910,27 @@ The API Portal images from update level 1.0.0.7 run on OpenShift without changes
             mountPath: /app/logs
     ```
 
-!!! note "Read-only root filesystem"
-    If you set `readOnlyRootFilesystem: true` in `api-portal-ui.deployment.securityContext`, the image's directories are read-only regardless of their permissions. Mount writable `emptyDir` volumes over the directories the portal writes to:
+### Read-only root filesystem { #read-only-root-filesystem }
 
-    - `/tmp`, where the portal unpacks the content packages that you upload for APIs. Without it, uploads fail with `Invalid zip file: ENOENT … mkdir '/tmp/api-content-upload'`.
-    - `/app/logs`, when file logging is on.
+If you set `readOnlyRootFilesystem: true` in `api-portal-ui.deployment.securityContext`, the image's directories are read-only regardless of their permissions. Mount writable `emptyDir` volumes over the directories the portal writes to:
 
-    ```yaml
-    api-portal-ui:
-      deployment:
-        extraVolumes:
-          - name: tmp
-            emptyDir: {}
-          - name: logs
-            emptyDir: {}
-        extraVolumeMounts:
-          - name: tmp
-            mountPath: /tmp
-          - name: logs
-            mountPath: /app/logs
-    ```
+- `/tmp`, where the portal unpacks the content packages that you upload for APIs. Without it, uploads fail with `Invalid zip file: ENOENT … mkdir '/tmp/api-content-upload'`.
+- `/app/logs`, when file logging is on.
+
+```yaml
+api-portal-ui:
+  deployment:
+    extraVolumes:
+      - name: tmp
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+    extraVolumeMounts:
+      - name: tmp
+        mountPath: /tmp
+      - name: logs
+        mountPath: /app/logs
+```
 
 ---
 
@@ -938,7 +942,7 @@ The API Portal images from update level 1.0.0.7 run on OpenShift without changes
 
 **Cause:** The root filesystem is read-only (`readOnlyRootFilesystem: true`), and no writable volume is mounted at `/tmp`, where the portal unpacks uploads.
 
-**Fix:** Mount a writable `emptyDir` volume at `/tmp`, as shown in [Read-only root filesystem](#section-4), or turn off the read-only root filesystem.
+**Fix:** Mount a writable `emptyDir` volume at `/tmp`, as shown in [Read-only root filesystem](#read-only-root-filesystem), or turn off the read-only root filesystem.
 
 ### API Portal fails with "EACCES: permission denied" on its log file { #log-permission-denied }
 
